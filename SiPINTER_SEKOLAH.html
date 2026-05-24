@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0F6E56">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Si-PINTER SEKOLAH</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g1: #0F6E56; --g2: #1D9E75; --g3: #5DCAA5; --g4: #E1F5EE;
+  --b1: #042C53; --b2: #185FA5; --b3: #378ADD; --b4: #E6F1FB;
+  --a1: #633806; --a2: #BA7517; --a3: #EF9F27; --a4: #FAEEDA;
+  --r1: #791F1F; --r2: #A32D2D; --r3: #E24B4A; --r4: #FCEBEB;
+  --p1: #26215C; --p2: #534AB7; --p3: #7F77DD; --p4: #EEEDFE;
+  --white: #FFFFFF; --gray1: #1A1A1A; --gray2: #444441;
+  --gray3: #888780; --gray4: #D3D1C7; --gray5: #F1EFE8;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'Space Mono', monospace;
+  --rad: 14px; --rad-sm: 8px; --rad-lg: 20px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:100vh;max-width:430px;margin:0 auto;position:relative;overflow-x:hidden}
+
+/* TOPBAR */
+.topbar{background:linear-gradient(135deg,var(--g1) 0%,var(--g2) 60%,var(--g3) 100%);padding:48px 20px 24px;position:relative;overflow:hidden}
+.topbar::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.07);border-radius:50%}
+.topbar::after{content:'';position:absolute;bottom:-30px;left:-20px;width:120px;height:120px;background:rgba(255,255,255,0.05);border-radius:50%}
+.topbar-inner{position:relative;z-index:1}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.app-name{font-size:18px;font-weight:700;color:white;letter-spacing:-0.3px}
+.app-sub{font-size:11px;color:rgba(255,255,255,0.75);margin-top:1px}
+.notif-btn{width:38px;height:38px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:white;font-size:17px;position:relative}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:#EF9F27;border-radius:50%;border:2px solid var(--g1)}
+.user-row{display:flex;align-items:center;gap:10px}
+.avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;border:2px solid rgba(255,255,255,0.4)}
+.user-name{font-size:13px;font-weight:600;color:white}
+.user-role{font-size:11px;color:rgba(255,255,255,0.75);margin-top:1px}
+.aktif-badge{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);color:white;font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;margin-left:auto}
+
+/* STAT CARDS */
+.stats-wrap{padding:0 16px;margin-top:-20px;position:relative;z-index:2}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{background:white;border-radius:var(--rad);padding:14px;box-shadow:var(--shadow);transition:transform .15s}
+.stat-card:active{transform:scale(0.97)}
+.stat-icon{width:34px;height:34px;border-radius:var(--rad-sm);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px}
+.si-green{background:var(--g4);color:var(--g1)}
+.si-blue{background:var(--b4);color:var(--b2)}
+.si-amber{background:var(--a4);color:var(--a1)}
+.si-red{background:var(--r4);color:var(--r2)}
+.stat-num{font-size:26px;font-weight:700;color:var(--gray1);line-height:1;font-family:var(--mono)}
+.stat-label{font-size:11px;color:var(--gray3);margin-top:4px;font-weight:500}
+
+/* SECTION */
+.section{padding:16px 16px 0}
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:13px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:0.6px}
+.section-link{font-size:12px;color:var(--g2);font-weight:600;cursor:pointer}
+
+/* ITEM CARDS */
+.item-card{background:white;border-radius:var(--rad);padding:13px;margin-bottom:10px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.item-card:active{transform:scale(0.98);box-shadow:none}
+.item-ico{width:42px;height:42px;border-radius:var(--rad-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ico-cb{background:var(--b4)}
+.ico-pj{background:var(--a4)}
+.item-info{flex:1;min-width:0}
+.item-name{font-size:13px;font-weight:600;color:var(--gray1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-sub{font-size:11px;color:var(--gray3);margin-top:3px}
+.badge{font-size:10px;font-weight:600;padding:4px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.badge-green{background:var(--g4);color:var(--g1)}
+.badge-amber{background:var(--a4);color:var(--a1)}
+.badge-red{background:var(--r4);color:var(--r2)}
+.badge-blue{background:var(--b4);color:var(--b2)}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:white;border-top:1px solid #EBEBEB;display:flex;padding:8px 0 20px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,0.06)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px;border:none;background:none}
+.nav-item .nav-ico{font-size:22px;color:var(--gray3);transition:color .15s,transform .15s}
+.nav-item .nav-lbl{font-size:10px;color:var(--gray3);font-weight:500;transition:color .15s}
+.nav-item.active .nav-ico{color:var(--g2)}
+.nav-item.active .nav-lbl{color:var(--g2);font-weight:700}
+.nav-item:active .nav-ico{transform:scale(0.85)}
+
+/* SCREENS */
+.screen{display:none;padding-bottom:90px}
+.screen.active{display:block}
+
+/* FORM */
+.form-card{background:white;border-radius:var(--rad);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.form-title{font-size:15px;font-weight:700;color:var(--gray1);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.form-title span{font-size:18px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--gray2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.4px}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--gray4);border-radius:var(--rad-sm);font-size:14px;font-family:var(--font);color:var(--gray1);background:var(--gray5);transition:border-color .15s,background .15s;appearance:none}
+.form-input:focus{outline:none;border-color:var(--g2);background:white}
+.form-select{width:100%;padding:11px 14px;border:1.5px solid var(--gray4);border-radius:var(--rad-sm);font-size:14px;font-family:var(--font);color:var(--gray1);background:var(--gray5);appearance:none;cursor:pointer}
+.form-select:focus{outline:none;border-color:var(--g2);background:white}
+.scan-btn{width:100%;padding:13px;background:var(--g4);border:2px dashed var(--g3);border-radius:var(--rad-sm);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--g1);font-family:var(--font);transition:background .15s}
+.scan-btn:active{background:var(--g3)}
+.scan-ico{font-size:22px}
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--g1),var(--g2));color:white;border:none;border-radius:var(--rad-sm);font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s,transform .15s}
+.btn-submit:active{opacity:0.85;transform:scale(0.98)}
+.scanned-result{background:var(--g4);border:1.5px solid var(--g3);border-radius:var(--rad-sm);padding:12px;margin-bottom:14px}
+.scanned-title{font-size:11px;font-weight:700;color:var(--g1);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.scanned-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0}
+.scanned-key{color:var(--g1);opacity:0.7}
+.scanned-val{font-weight:600;color:var(--g1)}
+.hidden{display:none}
+
+/* SUCCESS */
+.success-wrap{text-align:center;padding:32px 20px}
+.success-ico{font-size:64px;margin-bottom:16px;animation:pop .4s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
+.success-title{font-size:20px;font-weight:700;color:var(--g1);margin-bottom:8px}
+.success-sub{font-size:14px;color:var(--gray3);line-height:1.6}
+.success-detail{background:var(--g4);border-radius:var(--rad);padding:16px;margin:16px 0;text-align:left}
+.success-detail-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid rgba(15,110,86,0.1)}
+.success-detail-row:last-child{border-bottom:none}
+.btn-ulang{width:100%;padding:13px;background:white;border:2px solid var(--g2);border-radius:var(--rad-sm);font-size:14px;font-weight:700;color:var(--g2);font-family:var(--font);cursor:pointer;margin-top:8px}
+
+/* RIWAYAT */
+.riwayat-item{background:white;border-radius:var(--rad);padding:13px 14px;margin-bottom:8px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start}
+.riwayat-dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.riwayat-info{flex:1}
+.riwayat-title{font-size:13px;font-weight:600;color:var(--gray1)}
+.riwayat-sub{font-size:11px;color:var(--gray3);margin-top:3px}
+.riwayat-time{font-size:11px;color:var(--gray3);font-family:var(--mono)}
+
+/* NOTIF */
+.notif-item{background:white;border-radius:var(--rad);padding:13px;margin-bottom:8px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:flex-start}
+.notif-ico-wrap{width:38px;height:38px;border-radius:var(--rad-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.notif-text{font-size:13px;color:var(--gray1);line-height:1.5;flex:1}
+.notif-time{font-size:11px;color:var(--gray3);margin-top:4px}
+
+/* SCREEN HEADERS */
+.screen-header{padding:20px 16px 4px;font-size:20px;font-weight:700;color:var(--gray1)}
+.screen-sub{padding:0 16px 16px;font-size:13px;color:var(--gray3)}
+
+/* FILTER ROW */
+.filter-row{padding:0 16px 12px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-chip{padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;border:1.5px solid var(--gray4);background:white;color:var(--gray2);transition:all .15s;flex-shrink:0}
+.filter-chip.active{background:var(--g2);border-color:var(--g2);color:white}
+
+/* ASET DETAIL */
+.detail-header{background:linear-gradient(135deg,var(--g1),var(--g2));padding:48px 20px 24px;color:white}
+.detail-back{font-size:20px;margin-bottom:16px;cursor:pointer;display:inline-block}
+.detail-kode{font-size:28px;font-weight:700;font-family:var(--mono)}
+.detail-nama{font-size:15px;opacity:0.85;margin-top:4px}
+.detail-body{padding:16px}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--gray5)}
+.detail-row:last-child{border-bottom:none}
+.detail-key{font-size:12px;color:var(--gray3);font-weight:500}
+.detail-val{font-size:13px;color:var(--gray1);font-weight:600;text-align:right}
+
+/* FADE IN */
+.fade-in{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- ═══════ SCREEN: DASHBOARD ═══════ -->
+<div class="screen active fade-in" id="sc-home">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-row">
+        <div>
+          <div class="app-name">Si-PINTER SEKOLAH</div>
+          <div class="app-sub">Sistem Peminjaman Sarpras Digital</div>
+        </div>
+        <button class="notif-btn" onclick="switchScreen('notif',3)" aria-label="Notifikasi">
+          🔔<span class="notif-dot"></span>
+        </button>
+      </div>
+      <div class="user-row">
+        <div class="avatar">NU</div>
+        <div>
+          <div class="user-name">Nuril Ilmi, S.Kom</div>
+          <div class="user-role">Guru Informatika · Admin</div>
+        </div>
+        <span class="aktif-badge">Aktif</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-wrap">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon si-blue">💻</div>
+        <div class="stat-num">10</div>
+        <div class="stat-label">Chromebook</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-amber">📽️</div>
+        <div class="stat-num">5</div>
+        <div class="stat-label">Proyektor</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-amber">🔓</div>
+        <div class="stat-num">3</div>
+        <div class="stat-label">Sedang Dipinjam</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-red">🔧</div>
+        <div class="stat-num">2</div>
+        <div class="stat-label">Perlu Perbaikan</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hd">
+      <span class="section-title">Peminjaman Aktif Hari Ini</span>
+      <span class="section-link" onclick="switchScreen('riwayat',2)">Lihat semua →</span>
+    </div>
+    <div class="item-card" onclick="switchScreen('home',0)">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info">
+        <div class="item-name">CB-05 · Acer Chromebook</div>
+        <div class="item-sub">Ibu Sari · Kelas VIII.A · 08:00</div>
+      </div>
+      <span class="badge badge-amber">Dipinjam</span>
+    </div>
+    <div class="item-card">
+      <div class="item-ico ico-pj">📽️</div>
+      <div class="item-info">
+        <div class="item-name">PJ-02 · Epson EB-X05</div>
+        <div class="item-sub">Pak Rudi · Aula · 09:30</div>
+      </div>
+      <span class="badge badge-amber">Dipinjam</span>
+    </div>
+    <div class="item-card">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info">
+        <div class="item-name">CB-12 · Acer Chromebook</div>
+        <div class="item-sub">Bu Rina · Lab Kom 1 · 10:00</div>
+      </div>
+      <span class="badge badge-red">Terlambat!</span>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:16px">
+    <div class="section-hd">
+      <span class="section-title">Daftar Aset</span>
+      <span class="section-link" onclick="switchScreen('aset',1)">Lihat semua →</span>
+    </div>
+    <div class="item-card" onclick="showDetail('CB-01','Chromebook','Acer','Chromebook 311','NX.ML1SN.001','2022','Baik','Tersedia','Lab Komputer')">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info">
+        <div class="item-name">CB-01 · Acer Chromebook 311</div>
+        <div class="item-sub">Lab Komputer · NX.ML1SN.001</div>
+      </div>
+      <span class="badge badge-green">Tersedia</span>
+    </div>
+    <div class="item-card" onclick="showDetail('PJ-01','Proyektor','Epson','EB-X05','H839B00001','2021','Baik','Tersedia','Gudang Sarpras')">
+      <div class="item-ico ico-pj">📽️</div>
+      <div class="item-info">
+        <div class="item-name">PJ-01 · Epson EB-X05</div>
+        <div class="item-sub">Gudang Sarpras · H839B00001</div>
+      </div>
+      <span class="badge badge-green">Tersedia</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: DAFTAR ASET ═══════ -->
+<div class="screen fade-in" id="sc-aset">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-row">
+        <div>
+          <div class="app-name">Daftar Aset</div>
+          <div class="app-sub">15 perangkat terdaftar</div>
+        </div>
+        <button class="notif-btn" aria-label="Cari">🔍</button>
+      </div>
+    </div>
+  </div>
+  <div class="filter-row" style="margin-top:12px">
+    <div class="filter-chip active">Semua</div>
+    <div class="filter-chip">Chromebook</div>
+    <div class="filter-chip">Proyektor</div>
+    <div class="filter-chip">Tersedia</div>
+    <div class="filter-chip">Dipinjam</div>
+  </div>
+  <div style="padding:0 16px" id="aset-list">
+    <div class="item-card" onclick="showDetail('CB-01','Chromebook','Acer','Chromebook 311','NX.ML1SN.001','2022','Baik','Tersedia','Lab Komputer')">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info"><div class="item-name">CB-01 · Acer Chromebook 311</div><div class="item-sub">Lab Komputer · Baik</div></div>
+      <span class="badge badge-green">Tersedia</span>
+    </div>
+    <div class="item-card" onclick="showDetail('CB-02','Chromebook','Acer','Chromebook 311','NX.ML1SN.002','2022','Baik','Tersedia','Lab Komputer')">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info"><div class="item-name">CB-02 · Acer Chromebook 311</div><div class="item-sub">Lab Komputer · Baik</div></div>
+      <span class="badge badge-green">Tersedia</span>
+    </div>
+    <div class="item-card" onclick="showDetail('CB-03','Chromebook','Acer','Chromebook 311','NX.ML1SN.003','2022','Baik','Dipinjam','Lab Komputer')">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info"><div class="item-name">CB-03 · Acer Chromebook 311</div><div class="item-sub">Lab Komputer · Baik</div></div>
+      <span class="badge badge-amber">Dipinjam</span>
+    </div>
+    <div class="item-card" onclick="showDetail('CB-04','Chromebook','Acer','Chromebook 311','NX.ML1SN.004','2022','Baik','Tersedia','Lab Komputer')">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info"><div class="item-name">CB-04 · Acer Chromebook 311</div><div class="item-sub">Lab Komputer · Baik</div></div>
+      <span class="badge badge-green">Tersedia</span>
+    </div>
+    <div class="item-card" onclick="showDetail('CB-05','Chromebook','Acer','Chromebook 311','NX.ML1SN.005','2022','Baik','Dipinjam','Lab Komputer')">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info"><div class="item-name">CB-05 · Acer Chromebook 311</div><div class="item-sub">Lab Komputer · Baik</div></div>
+      <span class="badge badge-amber">Dipinjam</span>
+    </div>
+    <div class="item-card" onclick="showDetail('CB-06','Chromebook','Lenovo','100e Gen3','82HY0001ID','2023','Baik','Tersedia','Lab Komputer')">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info"><div class="item-name">CB-06 · Lenovo 100e Gen3</div><div class="item-sub">Lab Komputer · Baik</div></div>
+      <span class="badge badge-green">Tersedia</span>
+    </div>
+    <div class="item-card" onclick="showDetail('CB-07','Chromebook','Lenovo','100e Gen3','82HY0002ID','2023','Baik','Dipinjam','Lab Komputer')">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info"><div class="item-name">CB-07 · Lenovo 100e Gen3</div><div class="item-sub">Lab Komputer · Baik</div></div>
+      <span class="badge badge-amber">Dipinjam</span>
+    </div>
+    <div class="item-card" onclick="showDetail('CB-08','Chromebook','Lenovo','100e Gen3','82HY0003ID','2023','Perlu Perbaikan','Tidak Tersedia','Lab Komputer')">
+      <div class="item-ico ico-cb">💻</div>
+      <div class="item-info"><div class="item-name">CB-08 · Lenovo 100e Gen3</div><div class="item-sub">Lab Komputer · Keyboard rusak</div></div>
+      <span class="badge badge-red">Rusak</span>
+    </div>
+    <div class="item-card" onclick="showDetail('PJ-01','Proyektor','Epson','EB-X05','H839B00001','2021','Baik','Tersedia','Gudang Sarpras')">
+      <div class="item-ico ico-pj">📽️</div>
+      <div class="item-info"><div class="item-name">PJ-01 · Epson EB-X05</div><div class="item-sub">Gudang Sarpras · Baik</div></div>
+      <span class="badge badge-green">Tersedia</span>
+    </div>
+    <div class="item-card" onclick="showDetail('PJ-02','Proyektor','Epson','EB-X05','H839B00002','2021','Baik','Dipinjam','Gudang Sarpras')">
+      <div class="item-ico ico-pj">📽️</div>
+      <div class="item-info"><div class="item-name">PJ-02 · Epson EB-X05</div><div class="item-sub">Gudang Sarpras · Baik</div></div>
+      <span class="badge badge-amber">Dipinjam</span>
+    </div>
+    <div class="item-card" onclick="showDetail('PJ-03','Proyektor','BenQ','MX550','PD1A00001','2023','Baik','Tersedia','Gudang Sarpras')">
+      <div class="item-ico ico-pj">📽️</div>
+      <div class="item-info"><div class="item-name">PJ-03 · BenQ MX550</div><div class="item-sub">Gudang Sarpras · Baik</div></div>
+      <span class="badge badge-green">Tersedia</span>
+    </div>
+    <div class="item-card" onclick="showDetail('PJ-04','Proyektor','BenQ','MX550','PD1A00002','2023','Perlu Perbaikan','Tidak Tersedia','Gudang Sarpras')">
+      <div class="item-ico ico-pj">📽️</div>
+      <div class="item-info"><div class="item-name">PJ-04 · BenQ MX550</div><div class="item-sub">Gudang Sarpras · Lampu redup</div></div>
+      <span class="badge badge-red">Rusak</span>
+    </div>
+    <div class="item-card" onclick="showDetail('PJ-05','Proyektor','Optoma','S334e','E1P1A0001','2022','Baik','Tersedia','Gudang Sarpras')">
+      <div class="item-ico ico-pj">📽️</div>
+      <div class="item-info"><div class="item-name">PJ-05 · Optoma S334e</div><div class="item-sub">Gudang Sarpras · Baik</div></div>
+      <span class="badge badge-green">Tersedia</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: DETAIL ASET ═══════ -->
+<div class="screen fade-in" id="sc-detail">
+  <div class="detail-header" id="detail-header">
+    <div class="detail-back" onclick="switchScreen('aset',1)">← Kembali</div>
+    <div class="detail-kode" id="d-kode">CB-01</div>
+    <div class="detail-nama" id="d-nama">Chromebook</div>
+  </div>
+  <div class="detail-body">
+    <div style="background:white;border-radius:var(--rad);padding:16px;box-shadow:var(--shadow)">
+      <div class="detail-row"><span class="detail-key">Merek</span><span class="detail-val" id="d-merek">Acer</span></div>
+      <div class="detail-row"><span class="detail-key">Model</span><span class="detail-val" id="d-model">Chromebook 311</span></div>
+      <div class="detail-row"><span class="detail-key">Nomor Seri</span><span class="detail-val" id="d-seri">NX.ML1SN.001</span></div>
+      <div class="detail-row"><span class="detail-key">Tahun Beli</span><span class="detail-val" id="d-tahun">2022</span></div>
+      <div class="detail-row"><span class="detail-key">Kondisi</span><span class="detail-val" id="d-kondisi">Baik</span></div>
+      <div class="detail-row"><span class="detail-key">Status</span><span class="detail-val" id="d-status">Tersedia</span></div>
+      <div class="detail-row"><span class="detail-key">Lokasi</span><span class="detail-val" id="d-lokasi">Lab Komputer</span></div>
+    </div>
+    <button class="btn-submit" style="margin-top:14px" onclick="switchScreen('pinjam',2)">
+      📋 Pinjam Perangkat Ini
+    </button>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: PINJAM ═══════ -->
+<div class="screen fade-in" id="sc-pinjam">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-row">
+        <div>
+          <div class="app-name">Pinjam Perangkat</div>
+          <div class="app-sub">Scan QR Code pada perangkat</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:16px">
+    <div class="form-card">
+      <div class="form-title"><span>📷</span> Scan Kode Perangkat</div>
+      <div id="scan-area">
+        <button class="scan-btn" onclick="simulateScan()">
+          <span class="scan-ico">▣</span>
+          <span>Tap untuk Scan QR Code</span>
+        </button>
+        <div style="text-align:center;font-size:11px;color:var(--gray3);margin-top:8px">atau ketik kode secara manual</div>
+        <div class="form-group" style="margin-top:10px;margin-bottom:0">
+          <input class="form-input" type="text" id="manual-kode" placeholder="Contoh: CB-01" oninput="this.value=this.value.toUpperCase()">
+        </div>
+      </div>
+      <div id="scan-result" class="scanned-result hidden" style="margin-top:12px">
+        <div class="scanned-title">✓ Perangkat Terdeteksi</div>
+        <div class="scanned-row"><span class="scanned-key">Kode Aset</span><span class="scanned-val" id="r-kode">CB-07</span></div>
+        <div class="scanned-row"><span class="scanned-key">Nama</span><span class="scanned-val" id="r-nama">Lenovo 100e Gen3</span></div>
+        <div class="scanned-row"><span class="scanned-key">Kondisi</span><span class="scanned-val" id="r-kondisi">Baik ✓</span></div>
+        <div class="scanned-row"><span class="scanned-key">Status</span><span class="scanned-val" id="r-status">Tersedia</span></div>
+      </div>
+    </div>
+
+    <div class="form-card" id="form-isian" style="display:none">
+      <div class="form-title"><span>📝</span> Data Peminjaman</div>
+      <div class="form-group">
+        <label class="form-label">Nama Guru</label>
+        <select class="form-select" id="f-guru">
+          <option value="">-- Pilih Nama Guru --</option>
+          <option>Noor Faizah, S.Pd.</option>
+          <option>Nuril Ilmi, S.Kom</option>
+          <option>Tri Utami, S.Pd.</option>
+          <option>Dimas Fradinata, S.Pd.</option>
+          <option>Jepri Riswanto, S.Pd.</option>
+          <option>Nurul Siti Aisyah T, S.Pd.</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kelas / Ruang</label>
+        <select class="form-select" id="f-kelas">
+          <option value="">-- Pilih Kelas/Ruang --</option>
+          <option>VII.A</option><option>VII.B</option>
+          <option>VIII.A</option><option>VIII.B</option>
+          <option>IX.A</option><option>IX.B</option>
+          <option>Aula</option>
+          <option>Lab Kom 1</option><option>Lab Kom 2</option>
+          <option>Lab IPA</option>
+          <option>Perpustakaan</option>
+          <option>Majelis Guru</option>
+          <option>Moving Class</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tanggal Pinjam</label>
+        <input class="form-input" type="date" id="f-tgl">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Jam Pinjam</label>
+        <input class="form-input" type="time" id="f-jam">
+      </div>
+    </div>
+
+    <button class="btn-submit" id="btn-ambil" style="display:none" onclick="submitPinjam()">
+      ✅ Ambil Perangkat
+    </button>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: SUCCESS ═══════ -->
+<div class="screen fade-in" id="sc-success">
+  <div style="padding:20px">
+    <div class="success-wrap">
+      <div class="success-ico">✅</div>
+      <div class="success-title">Peminjaman Berhasil!</div>
+      <div class="success-sub">Data telah dicatat dan tersimpan</div>
+    </div>
+    <div class="success-detail">
+      <div class="success-detail-row"><span style="color:var(--gray3)">Perangkat</span><span id="s-perangkat" style="font-weight:600;color:var(--g1)">CB-07</span></div>
+      <div class="success-detail-row"><span style="color:var(--gray3)">Guru</span><span id="s-guru" style="font-weight:600">-</span></div>
+      <div class="success-detail-row"><span style="color:var(--gray3)">Kelas/Ruang</span><span id="s-kelas" style="font-weight:600">-</span></div>
+      <div class="success-detail-row"><span style="color:var(--gray3)">Waktu</span><span id="s-waktu" style="font-weight:600;font-family:var(--mono)">-</span></div>
+    </div>
+    <button class="btn-submit" onclick="switchScreen('pinjam',2);resetForm()">📷 Pinjam Perangkat Lain</button>
+    <button class="btn-ulang" onclick="switchScreen('home',0)">🏠 Kembali ke Dashboard</button>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: RIWAYAT ═══════ -->
+<div class="screen fade-in" id="sc-riwayat">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="app-name">Riwayat Peminjaman</div>
+      <div class="app-sub">Log semua transaksi</div>
+    </div>
+  </div>
+  <div style="padding:16px">
+    <div class="riwayat-item">
+      <div class="riwayat-dot" style="background:var(--g2)"></div>
+      <div class="riwayat-info">
+        <div class="riwayat-title">CB-07 dikembalikan · Kelas VIII.A</div>
+        <div class="riwayat-sub">Nuril Ilmi, S.Kom · Kondisi: Baik</div>
+      </div>
+      <div class="riwayat-time">11:45</div>
+    </div>
+    <div class="riwayat-item">
+      <div class="riwayat-dot" style="background:var(--b3)"></div>
+      <div class="riwayat-info">
+        <div class="riwayat-title">PJ-01 dipinjam · Aula</div>
+        <div class="riwayat-sub">Dimas Fradinata, S.Pd.</div>
+      </div>
+      <div class="riwayat-time">10:15</div>
+    </div>
+    <div class="riwayat-item">
+      <div class="riwayat-dot" style="background:var(--a2)"></div>
+      <div class="riwayat-info">
+        <div class="riwayat-title">CB-12 kondisi perlu perbaikan</div>
+        <div class="riwayat-sub">Dilaporkan oleh Jepri Riswanto, S.Pd.</div>
+      </div>
+      <div class="riwayat-time">09:58</div>
+    </div>
+    <div class="riwayat-item">
+      <div class="riwayat-dot" style="background:var(--g2)"></div>
+      <div class="riwayat-info">
+        <div class="riwayat-title">CB-03 dipinjam · Lab Kom 1</div>
+        <div class="riwayat-sub">Noor Faizah, S.Pd.</div>
+      </div>
+      <div class="riwayat-time">08:30</div>
+    </div>
+    <div class="riwayat-item">
+      <div class="riwayat-dot" style="background:var(--g2)"></div>
+      <div class="riwayat-info">
+        <div class="riwayat-title">PJ-03 dikembalikan · Majelis Guru</div>
+        <div class="riwayat-sub">Tri Utami, S.Pd.</div>
+      </div>
+      <div class="riwayat-time">07:45</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SCREEN: NOTIFIKASI ═══════ -->
+<div class="screen fade-in" id="sc-notif">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="app-name">Notifikasi</div>
+      <div class="app-sub">Peringatan & informasi terbaru</div>
+    </div>
+  </div>
+  <div style="padding:16px">
+    <div class="notif-item">
+      <div class="notif-ico-wrap" style="background:var(--r4)">⚠️</div>
+      <div>
+        <div class="notif-text"><strong>CB-12 belum dikembalikan</strong> oleh Bu Rina · Lab Kom 2 sejak jam 10:00</div>
+        <div class="notif-time">Terlambat 1 jam 45 menit</div>
+      </div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-ico-wrap" style="background:var(--a4)">🔧</div>
+      <div>
+        <div class="notif-text"><strong>CB-08 perlu perbaikan</strong> — keyboard rusak, dilaporkan Jepri Riswanto</div>
+        <div class="notif-time">Kemarin · 14:05</div>
+      </div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-ico-wrap" style="background:var(--g4)">📊</div>
+      <div>
+        <div class="notif-text"><strong>Laporan Mei 2026 siap diunduh</strong> — 40 transaksi tercatat</div>
+        <div class="notif-time">Hari ini · 07:00</div>
+      </div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-ico-wrap" style="background:var(--b4)">✅</div>
+      <div>
+        <div class="notif-text"><strong>PJ-04 selesai diperbaiki</strong> — lampu proyektor diganti, siap dipakai</div>
+        <div class="notif-time">2 hari lalu · 09:30</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="switchScreen('home',0)" id="nav0">
+    <span class="nav-ico">🏠</span>
+    <span class="nav-lbl">Dashboard</span>
+  </button>
+  <button class="nav-item" onclick="switchScreen('aset',1)" id="nav1">
+    <span class="nav-ico">💻</span>
+    <span class="nav-lbl">Aset</span>
+  </button>
+  <button class="nav-item" onclick="switchScreen('pinjam',2)" id="nav2">
+    <span class="nav-ico">📷</span>
+    <span class="nav-lbl">Pinjam</span>
+  </button>
+  <button class="nav-item" onclick="switchScreen('riwayat',3)" id="nav3">
+    <span class="nav-ico">📋</span>
+    <span class="nav-lbl">Riwayat</span>
+  </button>
+  <button class="nav-item" onclick="switchScreen('notif',4)" id="nav4">
+    <span class="nav-ico">🔔</span>
+    <span class="nav-lbl">Notifikasi</span>
+  </button>
+</nav>
+
+<script>
+var screens = ['home','aset','pinjam','riwayat','notif'];
+
+function switchScreen(name, navIdx) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  var el = document.getElementById('sc-' + name);
+  if (el) { el.classList.add('active'); el.classList.remove('fade-in'); void el.offsetWidth; el.classList.add('fade-in'); }
+  document.querySelectorAll('.nav-item').forEach((n,i) => n.classList.toggle('active', i === navIdx));
+  window.scrollTo(0,0);
+}
+
+function showDetail(kode, nama, merek, model, seri, tahun, kondisi, status, lokasi) {
+  document.getElementById('d-kode').textContent = kode;
+  document.getElementById('d-nama').textContent = nama + ' · ' + merek;
+  document.getElementById('d-merek').textContent = merek;
+  document.getElementById('d-model').textContent = model;
+  document.getElementById('d-seri').textContent = seri;
+  document.getElementById('d-tahun').textContent = tahun;
+  document.getElementById('d-kondisi').textContent = kondisi;
+  document.getElementById('d-status').textContent = status;
+  document.getElementById('d-lokasi').textContent = lokasi;
+  switchScreen('detail', 1);
+}
+
+function simulateScan() {
+  document.getElementById('scan-result').classList.remove('hidden');
+  document.getElementById('form-isian').style.display = 'block';
+  document.getElementById('btn-ambil').style.display = 'flex';
+  var now = new Date();
+  document.getElementById('f-tgl').value = now.toISOString().split('T')[0];
+  document.getElementById('f-jam').value = now.toTimeString().slice(0,5);
+}
+
+function submitPinjam() {
+  var guru = document.getElementById('f-guru').value;
+  var kelas = document.getElementById('f-kelas').value;
+  var tgl = document.getElementById('f-tgl').value;
+  var jam = document.getElementById('f-jam').value;
+  if (!guru || !kelas) { alert('Mohon pilih nama guru dan kelas/ruang terlebih dahulu!'); return; }
+  document.getElementById('s-perangkat').textContent = document.getElementById('r-kode').textContent;
+  document.getElementById('s-guru').textContent = guru;
+  document.getElementById('s-kelas').textContent = kelas;
+  document.getElementById('s-waktu').textContent = tgl + ' · ' + jam;
+  switchScreen('success', 2);
+}
+
+function resetForm() {
+  document.getElementById('scan-result').classList.add('hidden');
+  document.getElementById('form-isian').style.display = 'none';
+  document.getElementById('btn-ambil').style.display = 'none';
+  document.getElementById('f-guru').value = '';
+  document.getElementById('f-kelas').value = '';
+  document.getElementById('manual-kode').value = '';
+}
+
+// Set today's date
+var now = new Date();
+document.getElementById('f-tgl').value = now.toISOString().split('T')[0];
+document.getElementById('f-jam').value = now.toTimeString().slice(0,5);
+</script>
+</body>
+</html>
