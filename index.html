@@ -142,46 +142,50 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
 
 <!-- SCREEN: LOGIN -->
 <div class="screen active fade-in" id="sc-login">
-  <div style="min-height:100vh;background:linear-gradient(135deg,#0F6E56 0%,#1D9E75 60%,#5DCAA5 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;position:relative;overflow:hidden">
+  <div style="min-height:100vh;background:linear-gradient(135deg,#0F6E56 0%,#1D9E75 60%,#5DCAA5 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;position:relative;overflow:hidden">
     <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:rgba(255,255,255,0.06);border-radius:50%"></div>
     <div style="position:absolute;bottom:-40px;left:-40px;width:150px;height:150px;background:rgba(255,255,255,0.04);border-radius:50%"></div>
-    <div style="position:relative;z-index:1;width:100%;max-width:340px">
-      <div style="text-align:center;margin-bottom:32px">
-        <img id="login-logo" src="" alt="Logo SMPN 8" style="width:90px;height:90px;object-fit:contain;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto">
-        <div style="font-size:22px;font-weight:700;color:white;letter-spacing:-0.5px">Si-PINTER</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:4px">SMP Negeri 8 Tanjungpinang</div>
+    <div style="position:relative;z-index:1;width:100%;max-width:360px">
+      <div style="text-align:center;margin-bottom:28px">
+        <img id="login-logo" src="" alt="Logo" style="width:90px;height:90px;object-fit:contain;margin:0 auto 14px;display:block">
+        <div style="font-size:24px;font-weight:700;color:white;letter-spacing:-0.5px">Si-PINTER</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:4px">SMP Negeri 8 Tanjungpinang</div>
       </div>
-      <div style="background:white;border-radius:16px;padding:24px">
-        <div style="font-size:15px;font-weight:600;color:#1A1A1A;margin-bottom:16px;text-align:center">Selamat Datang 👋</div>
-        <div style="margin-bottom:12px">
-          <label style="font-size:11px;font-weight:600;color:#444441;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px">Pilih Nama Guru</label>
-          <select id="login-guru" style="width:100%;padding:11px 14px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:14px;font-family:inherit;color:#1A1A1A;background:#F1EFE8;appearance:none;cursor:pointer">
-            <option value="">-- Pilih nama Bapak/Ibu --</option>
-            <option value="Noor Faizah, S.Pd.">Noor Faizah, S.Pd.</option>
-            <option value="Nuril Ilmi, S.Kom">Nuril Ilmi, S.Kom</option>
-            <option value="Tri Utami, S.Pd.">Tri Utami, S.Pd.</option>
-            <option value="Dimas Fradinata, S.Pd.">Dimas Fradinata, S.Pd.</option>
-            <option value="Jepri Riswanto, S.Pd.">Jepri Riswanto, S.Pd.</option>
-            <option value="Nurul Siti Aisyah T, S.Pd.">Nurul Siti Aisyah T, S.Pd.</option>
-            <option value="Ibu Sari Dewi, S.Pd.">Ibu Sari Dewi, S.Pd.</option>
-            <option value="Pak Rudi Hartono, S.Pd.">Pak Rudi Hartono, S.Pd.</option>
-            <option value="Ibu Rina Susanti, M.Pd.">Ibu Rina Susanti, M.Pd.</option>
-            <option value="Pak Agus Wijaya, S.Pd.">Pak Agus Wijaya, S.Pd.</option>
-            <option value="Pak Hendra Kusuma, S.Pd.">Pak Hendra Kusuma, S.Pd.</option>
-          </select>
+      <div style="background:white;border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
+        <div style="font-size:16px;font-weight:600;color:#1A1A1A;margin-bottom:4px">Selamat Datang 👋</div>
+        <div style="font-size:12px;color:#888780;margin-bottom:20px">Masuk dengan akun Anda</div>
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:#444441;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px">Username</label>
+          <div style="position:relative">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:#888780">👤</span>
+            <input id="login-user" type="text" placeholder="Ketik username Anda" autocomplete="username" autocorrect="off" autocapitalize="none"
+              style="width:100%;padding:11px 14px 11px 38px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:14px;font-family:inherit;color:#1A1A1A;background:#F1EFE8;outline:none"
+              onkeypress="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+          </div>
         </div>
-        <div style="margin-bottom:16px">
-          <label style="font-size:11px;font-weight:600;color:#444441;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px">Jabatan</label>
-          <select id="login-jabatan" style="width:100%;padding:11px 14px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:14px;font-family:inherit;color:#1A1A1A;background:#F1EFE8;appearance:none;cursor:pointer">
-            <option value="Guru">Guru</option>
-            <option value="Admin">Admin</option>
-            <option value="Kepala Sekolah">Kepala Sekolah</option>
-          </select>
+        <div style="margin-bottom:8px">
+          <label style="font-size:11px;font-weight:600;color:#444441;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px">Password</label>
+          <div style="position:relative">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:#888780">🔒</span>
+            <input id="login-pass" type="password" placeholder="Ketik password Anda" autocomplete="current-password"
+              style="width:100%;padding:11px 14px 11px 38px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:14px;font-family:inherit;color:#1A1A1A;background:#F1EFE8;outline:none"
+              onkeypress="if(event.key==='Enter')doLogin()">
+            <button onclick="togglePass()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#888780" id="btn-eye">👁️</button>
+          </div>
         </div>
-        <div id="login-error" style="display:none;color:#A32D2D;font-size:12px;text-align:center;margin-bottom:10px">Silakan pilih nama guru terlebih dahulu</div>
-        <button onclick="doLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0F6E56,#1D9E75);color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Masuk ke Aplikasi</button>
+        <div id="login-error" style="display:none;background:#FCEBEB;border:1px solid #F09595;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#A32D2D;text-align:center">
+          ❌ Username atau password salah
+        </div>
+        <button onclick="doLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0F6E56,#1D9E75);color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px">
+          Masuk →
+        </button>
+        <div style="text-align:center;margin-top:14px;font-size:11px;color:#888780">
+          Lupa username/password? Hubungi Admin
+        </div>
       </div>
-      <div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(255,255,255,0.6)">Sistem Peminjaman Sarpras Digital</div>
+      <div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(255,255,255,0.5)">
+        © 2026 SMP Negeri 8 Tanjungpinang
+      </div>
     </div>
   </div>
 </div>
@@ -308,17 +312,25 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
         <label class="form-label">Nama Guru</label>
         <select class="form-select" id="f-guru">
           <option value="">-- Pilih Nama Guru --</option>
-          <option>Noor Faizah, S.Pd.</option>
-          <option>Nuril Ilmi, S.Kom</option>
-          <option>Tri Utami, S.Pd.</option>
-          <option>Dimas Fradinata, S.Pd.</option>
-          <option>Jepri Riswanto, S.Pd.</option>
-          <option>Nurul Siti Aisyah T, S.Pd.</option>
-          <option>Ibu Sari Dewi, S.Pd.</option>
-          <option>Pak Rudi Hartono, S.Pd.</option>
-          <option>Ibu Rina Susanti, M.Pd.</option>
-          <option>Pak Agus Wijaya, S.Pd.</option>
-          <option>Pak Hendra Kusuma, S.Pd.</option>
+          <option value="Noor Faizah, S.Pd.">Noor Faizah, S.Pd.</option>
+          <option value="Delfi Yulianti, S.Pd.">Delfi Yulianti, S.Pd.</option>
+          <option value="Nuril Ilmi, S.Kom.">Nuril Ilmi, S.Kom.</option>
+          <option value="Tri Utami, S.Pd.">Tri Utami, S.Pd.</option>
+          <option value="Dimas Fradinata, S.Pd.">Dimas Fradinata, S.Pd.</option>
+          <option value="Jepri Riswanto, S.Pd.">Jepri Riswanto, S.Pd.</option>
+          <option value="Fika Risvita, S.Pd.">Fika Risvita, S.Pd.</option>
+          <option value="Eva Octavia Ambarita, S.Pd.">Eva Octavia Ambarita, S.Pd.</option>
+          <option value="Sri Wahyuni, S.Pd.">Sri Wahyuni, S.Pd.</option>
+          <option value="Sri Mulyani, S.Pd.I.">Sri Mulyani, S.Pd.I.</option>
+          <option value="Ridho Ariasz M, S.Pd.">Ridho Ariasz M, S.Pd.</option>
+          <option value="Dessy Andriyani, S.Pd.">Dessy Andriyani, S.Pd.</option>
+          <option value="Wirdianita, S.Pd.Ing">Wirdianita, S.Pd.Ing</option>
+          <option value="Agita Novi Oktaviastuti, S.Pd.">Agita Novi Oktaviastuti, S.Pd.</option>
+          <option value="Brellian Caesar Firdausi, S.IP.">Brellian Caesar Firdausi, S.IP.</option>
+          <option value="Sri Yuliani">Sri Yuliani</option>
+          <option value="Linea Fitrie">Linea Fitrie</option>
+          <option value="Isnarizal">Isnarizal</option>
+          <option value="Riwan Handoko">Riwan Handoko</option>
         </select>
       </div>
       <div class="form-group">
@@ -459,167 +471,129 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
 </nav>
 
 <script>
+var USERS = {
+  'faizah':     {nama:'Noor Faizah, S.Pd.',             password:'spendel8', role:'kepsek', inisial:'NF'},
+  'delfi':      {nama:'Delfi Yulianti, S.Pd.',           password:'spendel8', role:'guru',   inisial:'DY'},
+  'nuril':      {nama:'Nuril Ilmi, S.Kom.',              password:'spendel8', role:'admin',  inisial:'NI'},
+  'tri':        {nama:'Tri Utami, S.Pd.',                password:'spendel8', role:'guru',   inisial:'TU'},
+  'dimas':      {nama:'Dimas Fradinata, S.Pd.',          password:'spendel8', role:'guru',   inisial:'DF'},
+  'jepri':      {nama:'Jepri Riswanto, S.Pd.',           password:'spendel8', role:'guru',   inisial:'JR'},
+  'fika':       {nama:'Fika Risvita, S.Pd.',             password:'spendel8', role:'guru',   inisial:'FR'},
+  'eva':        {nama:'Eva Octavia Ambarita, S.Pd.',     password:'spendel8', role:'guru',   inisial:'EA'},
+  'wahyuni':    {nama:'Sri Wahyuni, S.Pd.',              password:'spendel8', role:'guru',   inisial:'SW'},
+  'mulyani':    {nama:'Sri Mulyani, S.Pd.I.',            password:'spendel8', role:'guru',   inisial:'SM'},
+  'ridho':      {nama:'Ridho Ariasz M, S.Pd.',           password:'spendel8', role:'guru',   inisial:'RA'},
+  'dessy':      {nama:'Dessy Andriyani, S.Pd.',          password:'spendel8', role:'guru',   inisial:'DA'},
+  'wirdianita': {nama:'Wirdianita, S.Pd.Ing',            password:'spendel8', role:'guru',   inisial:'WD'},
+  'agita':      {nama:'Agita Novi Oktaviastuti, S.Pd.',  password:'spendel8', role:'admin',  inisial:'AN'},
+  'brellian':   {nama:'Brellian Caesar Firdausi, S.IP.', password:'spendel8', role:'guru',   inisial:'BC'},
+  'yuliani':    {nama:'Sri Yuliani',                     password:'spendel8', role:'tu',     inisial:'SY'},
+  'linea':      {nama:'Linea Fitrie',                    password:'spendel8', role:'tu',     inisial:'LF'},
+  'isnarizal':  {nama:'Isnarizal',                       password:'spendel8', role:'tu',     inisial:'IS'},
+  'riwan':      {nama:'Riwan Handoko',                   password:'spendel8', role:'tu',     inisial:'RH'}
+};
 
-var currentUser = '';
-var currentJabatan = '';
+var ROLE_LABEL = {
+  'admin':'Admin', 'guru':'Guru', 'kepsek':'Kepala Sekolah', 'tu':'Tata Usaha'
+};
 
-function getInisial(nama) {
-  var parts = nama.replace(/,.*$/, '').trim().split(' ');
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return parts[0].substring(0, 2).toUpperCase();
+var ROLE_ACCESS = {
+  'admin':  {pinjam:true,  riwayatSemua:true,  notif:true,  kelolaAset:true},
+  'guru':   {pinjam:true,  riwayatSemua:false, notif:false, kelolaAset:false},
+  'kepsek': {pinjam:false, riwayatSemua:true,  notif:true,  kelolaAset:false},
+  'tu':     {pinjam:true,  riwayatSemua:true,  notif:true,  kelolaAset:true}
+};
+
+var currentUser = null;
+
+function togglePass() {
+  var p = document.getElementById('login-pass');
+  var b = document.getElementById('btn-eye');
+  p.type = (p.type==='password') ? 'text' : 'password';
+  b.textContent = (p.type==='password') ? '👁️' : '🙈';
 }
 
 function doLogin() {
-  var guru = document.getElementById('login-guru').value;
-  var jabatan = document.getElementById('login-jabatan').value;
-  if (!guru) {
-    document.getElementById('login-error').style.display = 'block';
+  var uname = document.getElementById('login-user').value.trim().toLowerCase();
+  var pass  = document.getElementById('login-pass').value;
+  var err   = document.getElementById('login-error');
+  err.style.display = 'none';
+  if (!uname || !pass) {
+    err.style.display='block';
+    err.textContent='❌ Username dan password wajib diisi';
     return;
   }
-  currentUser = guru;
-  currentJabatan = jabatan;
-  // Save to sessionStorage so refresh keeps login
-  try { sessionStorage.setItem('sipinter_user', guru); sessionStorage.setItem('sipinter_jabatan', jabatan); } catch(e) {}
-  
-  // Update display
-  document.getElementById('display-nama').textContent = guru;
-  document.getElementById('display-jabatan').textContent = 'Guru · ' + jabatan;
-  document.getElementById('display-inisial').textContent = getInisial(guru);
-  
-  // Auto-select this guru in pinjam form
-  var sel = document.getElementById('f-guru');
-  for (var i = 0; i < sel.options.length; i++) {
-    if (sel.options[i].value === guru) { sel.selectedIndex = i; break; }
+  if (!USERS[uname] || USERS[uname].password !== pass) {
+    err.style.display='block';
+    err.textContent='❌ Username atau password salah';
+    return;
   }
-  
+  currentUser = Object.assign({}, USERS[uname], {username: uname});
+  try { sessionStorage.setItem('sipinter_session', JSON.stringify(currentUser)); } catch(e){}
+  applyUser(currentUser);
+  applyAccess(currentUser.role);
   switchScreen('home', 0);
 }
 
-// Check if already logged in
-try {
-  var savedUser = sessionStorage.getItem('sipinter_user');
-  var savedJabatan = sessionStorage.getItem('sipinter_jabatan');
-  if (savedUser) {
-    currentUser = savedUser;
-    currentJabatan = savedJabatan || 'Guru';
-    document.getElementById('display-nama').textContent = savedUser;
-    document.getElementById('display-jabatan').textContent = 'Guru · ' + (savedJabatan || 'Guru');
-    document.getElementById('display-inisial').textContent = getInisial(savedUser);
-    var sel = document.getElementById('f-guru');
-    for (var i = 0; i < sel.options.length; i++) {
-      if (sel.options[i].value === savedUser) { sel.selectedIndex = i; break; }
+function applyUser(u) {
+  var el;
+  el = document.getElementById('display-nama');
+  if(el) el.textContent = u.nama;
+  el = document.getElementById('display-jabatan');
+  if(el) el.textContent = u.inisial + ' · ' + ROLE_LABEL[u.role];
+  el = document.getElementById('display-inisial');
+  if(el) el.textContent = u.inisial;
+  // Auto-select in f-guru
+  var sel = document.getElementById('f-guru');
+  if(sel) {
+    for (var i=0; i<sel.options.length; i++) {
+      if (sel.options[i].value === u.nama) { sel.selectedIndex=i; break; }
     }
-    switchScreen('home', 0);
   }
-} catch(e) {}
+  // Role badge
+  var badge = document.querySelector('.aktif-badge');
+  if(badge) badge.textContent = ROLE_LABEL[u.role];
+}
 
-// Set logo in login screen
-document.getElementById('login-logo').src = document.querySelector('.school-logo').src;
+function applyAccess(role) {
+  var acc = ROLE_ACCESS[role];
+  var nav2 = document.getElementById('nav2');
+  var nav4 = document.getElementById('nav4');
+  if(nav2) nav2.style.display = acc.pinjam ? 'flex' : 'none';
+  if(nav4) nav4.style.display = acc.notif  ? 'flex' : 'none';
+}
 
-function doLogout(){try{sessionStorage.removeItem("sipinter_user");sessionStorage.removeItem("sipinter_jabatan");}catch(e){}currentUser="";document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById("sc-login").classList.add("active");}
-var API_URL='https://script.google.com/macros/s/AKfycbzSY7Hxghxle9F-quYGqhSpcSAhSEBnACfdXsLL46D4MH6UsqRKBAnzvEEgh1ew43XsEw/exec';
-var asetDB={
-  'CB-01':{nama:'Acer Chromebook 311',kondisi:'Baik',status:'Tersedia'},
-  'CB-02':{nama:'Acer Chromebook 311',kondisi:'Baik',status:'Tersedia'},
-  'CB-03':{nama:'Acer Chromebook 311',kondisi:'Baik',status:'Dipinjam'},
-  'CB-04':{nama:'Acer Chromebook 311',kondisi:'Baik',status:'Tersedia'},
-  'CB-05':{nama:'Acer Chromebook 311',kondisi:'Baik',status:'Dipinjam'},
-  'CB-06':{nama:'Lenovo 100e Gen3',kondisi:'Baik',status:'Tersedia'},
-  'CB-07':{nama:'Lenovo 100e Gen3',kondisi:'Baik',status:'Dipinjam'},
-  'CB-08':{nama:'Lenovo 100e Gen3',kondisi:'Perlu Perbaikan',status:'Tidak Tersedia'},
-  'CB-09':{nama:'HP Chromebook 11 G9',kondisi:'Baik',status:'Tersedia'},
-  'CB-10':{nama:'HP Chromebook 11 G9',kondisi:'Baik',status:'Tersedia'},
-  'PJ-01':{nama:'Epson EB-X05',kondisi:'Baik',status:'Tersedia'},
-  'PJ-02':{nama:'Epson EB-X05',kondisi:'Baik',status:'Dipinjam'},
-  'PJ-03':{nama:'BenQ MX550',kondisi:'Baik',status:'Tersedia'},
-  'PJ-04':{nama:'BenQ MX550',kondisi:'Perlu Perbaikan',status:'Tidak Tersedia'},
-  'PJ-05':{nama:'Optoma S334e',kondisi:'Baik',status:'Tersedia'}
-};
-var videoStream=null,scanInterval=null,currentKode='';
-
-function switchScreen(name,navIdx){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  var el=document.getElementById('sc-'+name);
-  if(el){el.classList.add('active');el.classList.remove('fade-in');void el.offsetWidth;el.classList.add('fade-in');}
-  document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active',i===navIdx));
+function doLogout() {
+  try { sessionStorage.removeItem('sipinter_session'); } catch(e){}
+  currentUser = null;
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('sc-login').classList.add('active');
   window.scrollTo(0,0);
-  if(name!=='pinjam')stopScan();
 }
 
-function filterAset(type,el){
-  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  document.querySelectorAll('#aset-list .item-card').forEach(card=>{
-    if(type==='semua'){card.style.display='flex';}
-    else if(type==='chromebook'){card.style.display=card.dataset.type==='chromebook'?'flex':'none';}
-    else if(type==='proyektor'){card.style.display=card.dataset.type==='proyektor'?'flex':'none';}
-    else if(type==='tersedia'){card.style.display=card.dataset.status==='tersedia'?'flex':'none';}
-    else if(type==='dipinjam'){card.style.display=card.dataset.status==='dipinjam'?'flex':'none';}
-    else if(type==='rusak'){card.style.display=card.dataset.status==='rusak'?'flex':'none';}
-  });
-}
-
-function showDetail(kode,nama,merek,model,seri,tahun,kondisi,status,lokasi){
-  currentKode=kode;
-  document.getElementById('d-kode').textContent=kode;
-  document.getElementById('d-nama').textContent=nama+' · '+merek;
-  document.getElementById('d-merek').textContent=merek;
-  document.getElementById('d-model').textContent=model;
-  document.getElementById('d-seri').textContent=seri;
-  document.getElementById('d-tahun').textContent=tahun;
-  document.getElementById('d-kondisi').textContent=kondisi;
-  document.getElementById('d-status').textContent=status;
-  document.getElementById('d-lokasi').textContent=lokasi;
-  switchScreen('detail',1);
-}
-
-function pinjamDariDetail(){
-  showAsetResult(currentKode);
-  switchScreen('pinjam',2);
-}
-
-function showAsetResult(kode){
-  var aset=asetDB[kode];
-  if(!aset){return false;}
-  document.getElementById('r-kode').textContent=kode;
-  document.getElementById('r-nama').textContent=aset.nama;
-  document.getElementById('r-kondisi').textContent=aset.kondisi+(aset.kondisi==='Baik'?' ✓':'');
-  document.getElementById('r-status').textContent=aset.status;
-  document.getElementById('scan-result').classList.remove('hidden');
-  document.getElementById('form-isian').style.display='block';
-  document.getElementById('btn-ambil').style.display='flex';
-  var now=new Date();
-  document.getElementById('f-tgl').value=now.toISOString().split('T')[0];
-  document.getElementById('f-jam').value=now.toTimeString().slice(0,5);
-  document.getElementById('manual-kode').value=kode;
-  return true;
-}
-
-function checkManual(val){
-  if(val.length>=4&&asetDB[val]){showAsetResult(val);}
-}
-
-function startScan(){
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    alert('Browser ini tidak mendukung kamera. Silakan ketik kode secara manual.');return;
+// Auto-login from session
+try {
+  var saved = sessionStorage.getItem('sipinter_session');
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    applyUser(currentUser);
+    applyAccess(currentUser.role);
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('sc-home').classList.add('active');
   }
-  document.getElementById('btn-scan').classList.add('hidden');
-  document.getElementById('qr-reader').classList.remove('hidden');
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
-  .then(function(stream){
-    videoStream=stream;
-    var video=document.getElementById('qr-video');
-    video.srcObject=stream;video.play();
-    scanInterval=setInterval(function(){
-      if(!video.readyState||video.readyState<2)return;
-      try{
-        var canvas=document.createElement('canvas');
-        canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-        var ctx=canvas.getContext('2d');ctx.drawImage(video,0,0);
-        var imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-        var code=jsQR(imageData.data,imageData.width,imageData.height);
-        if(code){var k=code.data.toUpperCase().trim();stopScan();if(!showAsetResult(k)){alert('Kode '+k+' tidak ditemukan di database!');document.getElementById('btn-scan').classList.remove('hidden');}}
-      }catch(e){}
+} catch(e){}
+
+// Set login logo from school-logo
+try {
+  var logoEl = document.querySelector('.school-logo');
+  var loginLogoEl = document.getElementById('login-logo');
+  if(logoEl && loginLogoEl) loginLogoEl.src = logoEl.src;
+} catch(e){}
+
+
     },300);
   })
   .catch(function(err){alert('Tidak bisa akses kamera: '+err.message);stopScan();});
