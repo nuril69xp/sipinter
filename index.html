@@ -404,7 +404,84 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
     <div style="text-align:center;padding:16px;font-size:11px;color:var(--gray3)">
       © 2026 SMP Negeri 8 Tanjungpinang<br>
       Dibuat dengan ❤️ untuk kemudahan guru<br><br>
-      <button type="button" onclick="doLogout()" style="background:#FCEBEB;color:var(--r2);border:1px solid #F09595;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;margin-top:12px">🚪 Ganti Pengguna / Logout</button>
+      <button type="button" onclick="switchScreen('gantipass',99)" style="background:#E6F1FB;color:#185FA5;border:1px solid #B5D4F4;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;margin-top:12px;width:100%">🔐 Ganti Password</button>
+      <button type="button" onclick="doLogout()" style="background:#FCEBEB;color:var(--r2);border:1px solid #F09595;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;margin-top:8px;width:100%">🚪 Ganti Pengguna / Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- GANTI PASSWORD -->
+<div class="screen fade-in" id="sc-gantipass" style="padding-bottom:0">
+  <div style="min-height:100vh;background:linear-gradient(135deg,#0F6E56 0%,#1D9E75 60%,#5DCAA5 100%);padding:48px 20px 32px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.07);border-radius:50%"></div>
+    <div style="position:relative;z-index:1;max-width:360px;margin:0 auto">
+      <div onclick="switchScreen('about',6)" style="font-size:20px;color:white;margin-bottom:20px;cursor:pointer">← Kembali</div>
+      <div style="font-size:20px;font-weight:700;color:white;margin-bottom:4px">🔐 Ganti Password</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:24px">Kode OTP akan dikirim ke email Anda</div>
+      
+      <!-- STEP 1: Minta OTP -->
+      <div id="gp-step1">
+        <div style="background:white;border-radius:16px;padding:24px">
+          <div style="font-size:13px;font-weight:600;color:var(--gray2);margin-bottom:16px">Langkah 1 — Verifikasi Identitas</div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:11px;font-weight:600;color:#444441;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px">Username</label>
+            <input id="gp-username" type="text" placeholder="Ketik username Anda" autocorrect="off" autocapitalize="none"
+              style="width:100%;padding:11px 14px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:14px;font-family:inherit;color:#1A1A1A;background:#F1EFE8;outline:none">
+          </div>
+          <div id="gp-err1" style="display:none;background:#FCEBEB;border:1px solid #F09595;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#A32D2D;text-align:center"></div>
+          <button onclick="kirimOTP()" id="btn-kirim-otp" style="width:100%;padding:13px;background:linear-gradient(135deg,#0F6E56,#1D9E75);color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">
+            Kirim Kode OTP ke Email →
+          </button>
+          <div style="text-align:center;margin-top:12px;font-size:11px;color:#888780">Kode dikirim ke email belajar.id Anda</div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Masukkan OTP & Password Baru -->
+      <div id="gp-step2" style="display:none">
+        <div style="background:var(--g4);border-radius:12px;padding:14px;margin-bottom:16px;text-align:center">
+          <div style="font-size:12px;color:var(--g1)">✉️ Kode OTP telah dikirim ke</div>
+          <div style="font-size:13px;font-weight:700;color:var(--g1);margin-top:4px" id="gp-email-display">-</div>
+          <div style="font-size:11px;color:var(--g1);opacity:.7;margin-top:2px">Berlaku 10 menit</div>
+        </div>
+        <div style="background:white;border-radius:16px;padding:24px">
+          <div style="font-size:13px;font-weight:600;color:var(--gray2);margin-bottom:16px">Langkah 2 — Masukkan Kode & Password Baru</div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:11px;font-weight:600;color:#444441;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px">Kode OTP (6 angka)</label>
+            <input id="gp-otp" type="number" placeholder="Contoh: 123456" maxlength="6"
+              style="width:100%;padding:11px 14px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:18px;font-family:monospace;color:#1A1A1A;background:#F1EFE8;outline:none;text-align:center;letter-spacing:4px">
+          </div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:11px;font-weight:600;color:#444441;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px">Password Baru</label>
+            <input id="gp-newpass" type="password" placeholder="Minimal 6 karakter"
+              style="width:100%;padding:11px 14px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:14px;font-family:inherit;color:#1A1A1A;background:#F1EFE8;outline:none">
+          </div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:11px;font-weight:600;color:#444441;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px">Konfirmasi Password Baru</label>
+            <input id="gp-konfirm" type="password" placeholder="Ketik ulang password baru"
+              style="width:100%;padding:11px 14px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:14px;font-family:inherit;color:#1A1A1A;background:#F1EFE8;outline:none">
+          </div>
+          <div id="gp-err2" style="display:none;background:#FCEBEB;border:1px solid #F09595;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#A32D2D;text-align:center"></div>
+          <button onclick="verifikasiOTP()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0F6E56,#1D9E75);color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">
+            ✅ Ganti Password
+          </button>
+          <button onclick="document.getElementById('gp-step2').style.display='none';document.getElementById('gp-step1').style.display='block'" 
+            style="width:100%;padding:10px;background:transparent;border:none;color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer;margin-top:8px">
+            ← Kirim ulang OTP
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Sukses -->
+      <div id="gp-step3" style="display:none">
+        <div style="background:white;border-radius:16px;padding:32px;text-align:center">
+          <div style="font-size:56px;margin-bottom:16px">🎉</div>
+          <div style="font-size:18px;font-weight:700;color:var(--g1);margin-bottom:8px">Password Berhasil Diubah!</div>
+          <div style="font-size:13px;color:var(--gray3);margin-bottom:24px">Silakan login ulang dengan password baru Anda</div>
+          <button onclick="doLogout()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0F6E56,#1D9E75);color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">
+            Login Ulang →
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -477,6 +554,8 @@ function switchScreen(name,navIdx){
   document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active',i===navIdx));
   window.scrollTo(0,0);
   if(name!=='pinjam')stopScan();
+  if(name==='riwayat')loadRiwayat();
+  if(name==='gantipass')resetGantiPass();
 }
 
 function togglePass(){
@@ -654,7 +733,132 @@ function resetForm(){
   document.getElementById('manual-kode').value='';
 }
 
-// Init
+// ── RIWAYAT REAL-TIME ────────────────────────────────────
+function loadRiwayat() {
+  document.getElementById('riwayat-loading').style.display='block';
+  document.getElementById('riwayat-error').style.display='none';
+  document.getElementById('riwayat-list').style.display='none';
+
+  fetch(API_URL + '?action=riwayat')
+  .then(function(res){return res.json();})
+  .then(function(data){
+    document.getElementById('riwayat-loading').style.display='none';
+    if(data.status!=='OK'||!data.data){
+      document.getElementById('riwayat-error').style.display='block';
+      return;
+    }
+    var rows=data.data;
+    if(rows.length===0){
+      document.getElementById('riwayat-list').innerHTML='<div style="text-align:center;padding:32px;color:var(--gray3)"><div style="font-size:32px;margin-bottom:12px">📋</div><div style="font-size:13px">Belum ada transaksi peminjaman</div></div>';
+      document.getElementById('riwayat-list').style.display='block';
+      return;
+    }
+    var html='';
+    rows.forEach(function(r){
+      var status=r.status||'Dipinjam';
+      var dot=status==='Selesai'?'var(--g2)':status==='Terlambat'?'var(--r2)':'var(--a2)';
+      var badgeStyle=status==='Selesai'?'background:var(--g4);color:var(--g1)':status==='Terlambat'?'background:var(--r4);color:var(--r2)':'background:var(--a4);color:var(--a1)';
+      var tgl=r.tgl||'';
+      var jam=r.jam||'';
+      html+='<div class="riwayat-item">'
+        +'<div class="riwayat-dot" style="background:'+dot+'"></div>'
+        +'<div class="riwayat-info">'
+          +'<div class="riwayat-title"><strong>'+r.kode+'</strong> · '+r.kelas+'</div>'
+          +'<div class="riwayat-sub">'+r.guru+' · '+tgl+' '+jam+'</div>'
+        +'</div>'
+        +'<span style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;white-space:nowrap;'+badgeStyle+'">'+status+'</span>'
+      +'</div>';
+    });
+    document.getElementById('riwayat-list').innerHTML=html;
+    document.getElementById('riwayat-list').style.display='block';
+  })
+  .catch(function(){
+    document.getElementById('riwayat-loading').style.display='none';
+    document.getElementById('riwayat-error').style.display='block';
+  });
+}
+
+// ── GANTI PASSWORD / OTP ─────────────────────────────────
+function kirimOTP() {
+  var uname = document.getElementById('gp-username').value.trim().toLowerCase();
+  var err   = document.getElementById('gp-err1');
+  var btn   = document.getElementById('btn-kirim-otp');
+  err.style.display='none';
+  if(!uname){err.style.display='block';err.textContent='❌ Username wajib diisi';return;}
+  if(!USERS[uname]){err.style.display='block';err.textContent='❌ Username tidak ditemukan';return;}
+  
+  btn.textContent='Mengirim...';
+  btn.disabled=true;
+  
+  fetch(API_URL+'?action=kirimOTP&username='+encodeURIComponent(uname))
+  .then(function(res){return res.json();})
+  .then(function(data){
+    btn.textContent='Kirim Kode OTP ke Email →';
+    btn.disabled=false;
+    if(data.status!=='OK'){
+      err.style.display='block';
+      err.textContent='❌ '+data.message;
+      return;
+    }
+    document.getElementById('gp-email-display').textContent=data.email;
+    document.getElementById('gp-step1').style.display='none';
+    document.getElementById('gp-step2').style.display='block';
+  })
+  .catch(function(){
+    btn.textContent='Kirim Kode OTP ke Email →';
+    btn.disabled=false;
+    err.style.display='block';
+    err.textContent='❌ Gagal terhubung. Periksa koneksi internet.';
+  });
+}
+
+function verifikasiOTP() {
+  var uname   = document.getElementById('gp-username').value.trim().toLowerCase();
+  var otp     = document.getElementById('gp-otp').value.trim();
+  var newpass = document.getElementById('gp-newpass').value;
+  var konfirm = document.getElementById('gp-konfirm').value;
+  var err     = document.getElementById('gp-err2');
+  err.style.display='none';
+  
+  if(!otp||otp.length!==6){err.style.display='block';err.textContent='❌ Kode OTP harus 6 angka';return;}
+  if(!newpass||newpass.length<6){err.style.display='block';err.textContent='❌ Password baru minimal 6 karakter';return;}
+  if(newpass!==konfirm){err.style.display='block';err.textContent='❌ Konfirmasi password tidak cocok';return;}
+  
+  fetch(API_URL,{
+    method:'POST',
+    body:JSON.stringify({action:'verifikasiOTP',username:uname,otp:otp,newPassword:newpass})
+  })
+  .then(function(res){return res.json();})
+  .then(function(data){
+    if(data.status!=='OK'){
+      err.style.display='block';
+      err.textContent='❌ '+data.message;
+      return;
+    }
+    // Update password di USERS object
+    if(USERS[uname]) USERS[uname].password=newpass;
+    document.getElementById('gp-step2').style.display='none';
+    document.getElementById('gp-step3').style.display='block';
+  })
+  .catch(function(){
+    err.style.display='block';
+    err.textContent='❌ Gagal terhubung. Coba lagi.';
+  });
+}
+
+function resetGantiPass(){
+  document.getElementById('gp-step1').style.display='block';
+  document.getElementById('gp-step2').style.display='none';
+  document.getElementById('gp-step3').style.display='none';
+  document.getElementById('gp-username').value='';
+  document.getElementById('gp-otp').value='';
+  document.getElementById('gp-newpass').value='';
+  document.getElementById('gp-konfirm').value='';
+  document.getElementById('gp-err1').style.display='none';
+  document.getElementById('gp-err2').style.display='none';
+}
+
+// ── Init
 var now=new Date();
 document.getElementById('f-tgl').value=now.toISOString().split('T')[0];
 document.getElementById('f-jam').value=now.toTimeString().slice(0,5);
