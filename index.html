@@ -244,7 +244,8 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
       <div class="detail-row"><span class="detail-key">Tahun Beli</span><span class="detail-val" id="d-tahun">-</span></div>
       <div class="detail-row"><span class="detail-key">Kondisi</span><span class="detail-val" id="d-kondisi">-</span></div>
       <div class="detail-row"><span class="detail-key">Status</span><span class="detail-val" id="d-status">-</span></div>
-      <div class="detail-row"><span class="detail-key">Lokasi</span><span class="detail-val" id="d-lokasi">-</span></div>
+      <div class="detail-row"><span class="detail-key">Lokasi Simpan</span><span class="detail-val" id="d-lokasi">-</span></div>
+      <div class="detail-row"><span class="detail-key">Lokasi Saat Ini</span><span class="detail-val" id="d-lokasi-kini">-</span></div>
     </div>
     <div id="d-aktif" style="display:none;margin-top:14px"></div>
     <div id="d-info" style="display:none;margin-top:14px;background:var(--r4);color:var(--r2);border-radius:var(--rad-sm);padding:12px;font-size:13px;text-align:center"></div>
@@ -825,6 +826,7 @@ function showDetailByKode(kode,stay){
   set('d-nama',(a.nama||'')+' · '+(a.merek||''));
   set('d-merek',a.merek);set('d-model',a.model);set('d-seri',a.seri);set('d-tahun',a.tahun);
   set('d-kondisi',a.kondisi);set('d-status',a.status);set('d-lokasi',a.lokasi);
+  set('d-lokasi-kini',a.lokasi_kini||a.lokasi);
   var loans=allAktif.filter(function(l){return l.kode===kode;});
   var k=statKey(a);
   var btn=document.getElementById('btn-pinjam-detail'),box=document.getElementById('d-aktif'),info=document.getElementById('d-info');
