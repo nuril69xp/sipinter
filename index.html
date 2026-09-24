@@ -679,6 +679,12 @@ function loadAset(){
 
 function statKey(a){var t=(a.status||'').toLowerCase().trim();return t==='tersedia'?'tersedia':t==='dipinjam'?'dipinjam':'rusak';}
 function isCB(a){return String(a.kode).toUpperCase().indexOf('CB')===0;}
+function normNama(n){return String(n||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+function canReturn(l){
+  if(!currentUser)return false;
+  if(currentUser.role==='admin')return true;
+  return normNama(l.guru)===normNama(currentUser.nama);
+}
 function canBorrow(){return currentUser&&ROLE_ACCESS[currentUser.role]&&ROLE_ACCESS[currentUser.role].pinjam;}
 
 function renderAset(data){
@@ -736,7 +742,7 @@ function loanCard(l,withImg){
   var a=allAsetData.filter(function(x){return x.kode===l.kode;})[0]||{};
   var cb=String(l.kode).toUpperCase().indexOf('CB')===0;
   var late=isTerlambat(l);
-  var right=canBorrow()
+  var right=canReturn(l)
     ? '<button onclick="event.stopPropagation();openKembali(\''+esc(l.id)+'\')" style="background:var(--g2);color:white;border:none;border-radius:99px;padding:7px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">↩ Kembalikan</button>'
     : '<span class="badge '+(late?'badge-red':'badge-amber')+'">'+(late?'Terlambat!':'Dipinjam')+'</span>';
   return '<div class="item-card"><div class="item-ico '+(cb?'ico-cb':'ico-pj')+'">'+(cb?'💻':'📽️')+'</div>'
@@ -967,7 +973,7 @@ function loadRiwayat() {
           +'<div class="riwayat-title"><strong>'+esc(r.kode)+'</strong> · '+esc(r.kelas)+'</div>'
           +'<div class="riwayat-sub">'+esc(r.guru)+' · '+esc(tgl)+' '+esc(jam)+(r.tgl_kembali?' → kembali '+esc(r.tgl_kembali)+' '+esc(r.jam_kembali)+(r.kondisi?' ('+esc(r.kondisi)+')':''):'')+'</div>'
         +'</div>'
-        +(status==='Dipinjam'&&canBorrow()?'<button onclick="openKembali(\''+esc(r.id)+'\')" style="background:var(--g2);color:white;border:none;border-radius:99px;padding:6px 10px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;margin-right:6px">↩ Kembalikan</button>':'')
+        +(status==='Dipinjam'&&canReturn(r)?'<button onclick="openKembali(\''+esc(r.id)+'\')" style="background:var(--g2);color:white;border:none;border-radius:99px;padding:6px 10px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;margin-right:6px">↩ Kembalikan</button>':'')
         +'<span style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;white-space:nowrap;'+badgeStyle+'">'+status+'</span>'
       +'</div>';
     });
