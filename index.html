@@ -189,22 +189,19 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
   </div>
   <div class="stats-wrap">
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-icon si-blue">💻</div><div class="stat-num">10</div><div class="stat-label">Chromebook</div></div>
-      <div class="stat-card"><div class="stat-icon si-amber">📽️</div><div class="stat-num">5</div><div class="stat-label">Proyektor</div></div>
-      <div class="stat-card"><div class="stat-icon si-amber">🔓</div><div class="stat-num">3</div><div class="stat-label">Sedang Dipinjam</div></div>
-      <div class="stat-card"><div class="stat-icon si-red">🔧</div><div class="stat-num">2</div><div class="stat-label">Perlu Perbaikan</div></div>
+      <div class="stat-card"><div class="stat-icon si-blue">💻</div><div class="stat-num" id="stat-cb">–</div><div class="stat-label">Chromebook</div></div>
+      <div class="stat-card"><div class="stat-icon si-amber">📽️</div><div class="stat-num" id="stat-pj">–</div><div class="stat-label">Proyektor</div></div>
+      <div class="stat-card"><div class="stat-icon si-amber">🔓</div><div class="stat-num" id="stat-pinjam">–</div><div class="stat-label">Sedang Dipinjam</div></div>
+      <div class="stat-card"><div class="stat-icon si-red">🔧</div><div class="stat-num" id="stat-rusak">–</div><div class="stat-label">Perlu Perbaikan</div></div>
     </div>
   </div>
   <div class="section">
     <div class="section-hd"><span class="section-title">Peminjaman Aktif</span><span class="section-link" onclick="switchScreen('riwayat',3)">Lihat semua →</span></div>
-    <div class="item-card"><div class="item-ico ico-cb">💻</div><div class="item-info"><div class="item-name">CB-05 · Acer Chromebook</div><div class="item-sub">Noor Faizah · Kelas VIII.A · 08:00</div></div><span class="badge badge-amber">Dipinjam</span></div>
-    <div class="item-card"><div class="item-ico ico-pj">📽️</div><div class="item-info"><div class="item-name">PJ-02 · Epson EB-X05</div><div class="item-sub">Dimas Fradinata · Aula · 09:30</div></div><span class="badge badge-amber">Dipinjam</span></div>
-    <div class="item-card"><div class="item-ico ico-cb">💻</div><div class="item-info"><div class="item-name">CB-12 · Acer Chromebook</div><div class="item-sub">Tri Utami · Lab Kom 1 · 10:00</div></div><span class="badge badge-red">Terlambat!</span></div>
+    <div id="home-aktif"><div style="text-align:center;padding:20px;color:var(--gray3);font-size:13px">Memuat...</div></div>
   </div>
   <div class="section" style="padding-top:16px">
     <div class="section-hd"><span class="section-title">Aset Tersedia</span><span class="section-link" onclick="switchScreen('aset',1)">Lihat semua →</span></div>
-    <div class="item-card" onclick="showDetail('CB-01','Chromebook','Acer','Chromebook 311','NX.ML1SN.001','2022','Baik','Tersedia','Lab Komputer')"><div class="item-ico ico-cb">💻</div><div class="item-info"><div class="item-name">CB-01 · Acer Chromebook 311</div><div class="item-sub">Lab Komputer</div></div><span class="badge badge-green">Tersedia</span></div>
-    <div class="item-card" onclick="showDetail('PJ-01','Proyektor','Epson','EB-X05','H839B00001','2021','Baik','Tersedia','Gudang Sarpras')"><div class="item-ico ico-pj">📽️</div><div class="item-info"><div class="item-name">PJ-01 · Epson EB-X05</div><div class="item-sub">Gudang Sarpras</div></div><span class="badge badge-green">Tersedia</span></div>
+    <div id="home-tersedia"></div>
   </div>
 </div>
 
@@ -249,7 +246,9 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
       <div class="detail-row"><span class="detail-key">Status</span><span class="detail-val" id="d-status">-</span></div>
       <div class="detail-row"><span class="detail-key">Lokasi</span><span class="detail-val" id="d-lokasi">-</span></div>
     </div>
-    <button class="btn-submit" style="margin-top:14px" onclick="pinjamDariDetail()">📋 Pinjam Perangkat Ini</button>
+    <div id="d-aktif" style="display:none;margin-top:14px"></div>
+    <div id="d-info" style="display:none;margin-top:14px;background:var(--r4);color:var(--r2);border-radius:var(--rad-sm);padding:12px;font-size:13px;text-align:center"></div>
+    <button class="btn-submit" id="btn-pinjam-detail" style="margin-top:14px" onclick="pinjamDariDetail()">📋 Pinjam Perangkat Ini</button>
   </div>
 </div>
 
@@ -490,6 +489,20 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
   <button class="nav-item" onclick="switchScreen('about',6)" id="nav6"><span class="nav-ico">ℹ️</span><span class="nav-lbl">Tentang</span></button>
 </nav>
 
+<div id="kembali-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:998;align-items:flex-end;justify-content:center">
+  <div style="background:white;width:100%;max-width:480px;border-radius:18px 18px 0 0;padding:20px 18px 24px;box-shadow:0 -4px 20px rgba(0,0,0,.2)">
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">↩️ Kembalikan Perangkat</div>
+    <div id="kb-info" style="font-size:13px;color:var(--gray3);margin-bottom:14px"></div>
+    <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:6px">Kondisi saat dikembalikan</label>
+    <select id="kb-kondisi" style="width:100%;padding:11px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px;background:#F1EFE8">
+      <option value="Baik">Baik</option><option value="Rusak Ringan">Rusak Ringan</option><option value="Rusak Berat">Rusak Berat</option>
+    </select>
+    <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:6px">Keterangan (opsional)</label>
+    <input id="kb-ket" type="text" placeholder="Contoh: layar retak di sudut" style="width:100%;padding:11px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:16px;background:#F1EFE8">
+    <button class="btn-submit" onclick="submitKembali()">✅ Konfirmasi Pengembalian</button>
+    <button class="btn-ulang" onclick="closeKembali()">Batal</button>
+  </div>
+</div>
 <script>
 var API_URL='https://script.google.com/macros/s/AKfycbwnmPN4IMAM07wOj47OWhzRq6BQ3jOZFn4xdqx-Bm9C6HggpqGYioZj3XVfsU299JXEpQ/exec';
 var asetDB={
@@ -549,6 +562,8 @@ function switchScreen(name,navIdx){
   if(name!=='pinjam')stopScan();
   if(name==='riwayat')loadRiwayat();
   if(name==='notif')loadNotif();
+  if(name==='home')loadHome();
+  if(name==='pinjam'&&!allAsetData.length)loadAset();
   if(name==='aset')loadAset();
   if(name==='gantipass')resetGantiPass();
 }
@@ -626,6 +641,8 @@ function doLogout(){
 }
 
 var allAsetData = [];
+var allAktif = [];
+var loanIndex = {};
 var currentFilter = 'semua';
 
 function filterAset(type,el){
@@ -648,6 +665,9 @@ function loadAset(){
       return;
     }
     allAsetData = data.data;
+    allAktif = data.aktif||[];
+    allAktif.forEach(function(l){loanIndex[l.id]=l;});
+    renderHome();
     document.getElementById('aset-subtitle').textContent = data.data.length + ' perangkat terdaftar';
     renderAset(data.data);
   })
@@ -657,33 +677,33 @@ function loadAset(){
   });
 }
 
+function statKey(a){var t=(a.status||'').toLowerCase().trim();return t==='tersedia'?'tersedia':t==='dipinjam'?'dipinjam':'rusak';}
+function isCB(a){return String(a.kode).toUpperCase().indexOf('CB')===0;}
+function canBorrow(){return currentUser&&ROLE_ACCESS[currentUser.role]&&ROLE_ACCESS[currentUser.role].pinjam;}
+
 function renderAset(data){
   var f = currentFilter;
   var filtered = data.filter(function(a){
-    var tipe = a.kode.startsWith('CB') ? 'chromebook' : 'proyektor';
-    var stat = (a.status||'').toLowerCase();
-    var statKey = stat.includes('tersedia') ? 'tersedia' : stat.includes('dipinjam') ? 'dipinjam' : 'rusak';
+    var k = statKey(a);
     if(f==='semua') return true;
-    if(f==='chromebook') return tipe==='chromebook';
-    if(f==='proyektor') return tipe==='proyektor';
-    if(f==='tersedia') return statKey==='tersedia';
-    if(f==='dipinjam') return statKey==='dipinjam';
-    if(f==='rusak') return statKey==='rusak';
-    return true;
+    if(f==='chromebook') return isCB(a);
+    if(f==='proyektor') return !isCB(a);
+    return k===f;
   });
   var html = '';
   filtered.forEach(function(a){
-    var tipe = a.kode.startsWith('CB') ? 'chromebook' : 'proyektor';
-    var ico = tipe==='chromebook' ? 'ico-cb' : 'ico-pj';
-    var emo = tipe==='chromebook' ? '💻' : '📽️';
-    var stat = (a.status||'Tersedia');
-    var badgeCls = stat==='Tersedia' ? 'badge-green' : stat==='Dipinjam' ? 'badge-amber' : 'badge-red';
-    var sub2 = a.ket ? a.ket : (a.lokasi||'-');
-    var args=[a.kode,a.nama,a.merek,a.model,a.seri,a.tahun,a.kondisi,a.status,a.lokasi].map(function(v){return "'"+String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')+"'";}).join(',');
-    html += '<div class="item-card" data-type="'+tipe+'" data-status="'+stat.toLowerCase().replace(' ','')+'" onclick="showDetail('+args+')">'
+    var cb = isCB(a);
+    var ico = cb ? 'ico-cb' : 'ico-pj';
+    var emo = cb ? '💻' : '📽️';
+    var k = statKey(a);
+    var stat = a.status||'Tersedia';
+    var badgeCls = k==='tersedia' ? 'badge-green' : k==='dipinjam' ? 'badge-amber' : 'badge-red';
+    var loans = allAktif.filter(function(l){return l.kode===a.kode;});
+    var sub2 = loans.length ? (loans.length>1 ? loans.length+' peminjaman aktif' : loans[0].guru+' · '+loans[0].kelas) : (a.ket ? a.ket : (a.lokasi||'-'));
+    html += '<div class="item-card" onclick="showDetailByKode(\''+esc(a.kode)+'\')">'
           + '<div class="item-ico '+ico+'">'+emo+'</div>'
-          + '<div class="item-info"><div class="item-name">'+a.kode+' · '+a.merek+' '+a.model+'</div><div class="item-sub">'+sub2+'</div></div>'
-          + '<span class="badge '+badgeCls+'">'+stat+'</span>'
+          + '<div class="item-info"><div class="item-name">'+esc(a.kode)+' · '+esc(a.merek)+' '+esc(a.model)+'</div><div class="item-sub">'+esc(sub2)+'</div></div>'
+          + '<span class="badge '+badgeCls+'">'+esc(stat)+'</span>'
           + '</div>';
   });
   if(!html) html='<div style="text-align:center;padding:32px;color:var(--gray3)"><div style="font-size:32px;margin-bottom:12px">📭</div><div style="font-size:13px">Tidak ada perangkat ditemukan</div></div>';
@@ -691,18 +711,126 @@ function renderAset(data){
   document.getElementById('aset-list').style.display='block';
 }
 
-function showDetail(kode,nama,merek,model,seri,tahun,kondisi,status,lokasi){
+// ── DASHBOARD DINAMIS ───────────────────────────────────
+function loadHome(){
+  fetch(API_URL+'?action=aset').then(function(r){return r.json();}).then(function(d){
+    if(d.status==='OK'&&d.data){
+      allAsetData=d.data;allAktif=d.aktif||[];
+      allAktif.forEach(function(l){loanIndex[l.id]=l;});
+      renderHome();
+      if(document.getElementById('sc-aset').classList.contains('active'))renderAset(allAsetData);
+    }
+  }).catch(function(){
+    var h=document.getElementById('home-aktif');
+    if(h)h.innerHTML='<div style="text-align:center;padding:20px;color:var(--r2);font-size:13px">⚠️ Gagal memuat data. <a href="#" onclick="loadHome();return false">Coba lagi</a></div>';
+  });
+}
+
+function isTerlambat(l){
+  var t=Date.parse(l.tgl);if(isNaN(t))return false;
+  var today=new Date();today.setHours(0,0,0,0);
+  return t<today.getTime();
+}
+
+function loanCard(l,withImg){
+  var a=allAsetData.filter(function(x){return x.kode===l.kode;})[0]||{};
+  var cb=String(l.kode).toUpperCase().indexOf('CB')===0;
+  var late=isTerlambat(l);
+  var right=canBorrow()
+    ? '<button onclick="event.stopPropagation();openKembali(\''+esc(l.id)+'\')" style="background:var(--g2);color:white;border:none;border-radius:99px;padding:7px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">↩ Kembalikan</button>'
+    : '<span class="badge '+(late?'badge-red':'badge-amber')+'">'+(late?'Terlambat!':'Dipinjam')+'</span>';
+  return '<div class="item-card"><div class="item-ico '+(cb?'ico-cb':'ico-pj')+'">'+(cb?'💻':'📽️')+'</div>'
+    +'<div class="item-info"><div class="item-name">'+esc(l.kode)+' · '+esc((a.merek||'')+' '+(a.model||''))+'</div>'
+    +'<div class="item-sub">'+esc(l.guru)+' · '+esc(l.kelas)+' · '+esc(l.tgl)+' '+esc(l.jam)+(late?' · ⚠️ Terlambat':'')+'</div></div>'+right+'</div>';
+}
+
+function renderHome(){
+  var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  set('stat-cb',allAsetData.filter(isCB).length);
+  set('stat-pj',allAsetData.filter(function(a){return !isCB(a);}).length);
+  set('stat-pinjam',allAktif.length);
+  set('stat-rusak',allAsetData.filter(function(a){return statKey(a)==='rusak';}).length);
+  var h=document.getElementById('home-aktif');
+  if(h)h.innerHTML=allAktif.length?allAktif.map(function(l){return loanCard(l);}).join(''):'<div style="text-align:center;padding:20px;color:var(--gray3);font-size:13px">Tidak ada peminjaman aktif 🎉</div>';
+  var t=document.getElementById('home-tersedia');
+  if(t){
+    var av=allAsetData.filter(function(a){return statKey(a)==='tersedia';}).slice(0,3);
+    t.innerHTML=av.length?av.map(function(a){var cb=isCB(a);
+      return '<div class="item-card" onclick="showDetailByKode(\''+esc(a.kode)+'\')"><div class="item-ico '+(cb?'ico-cb':'ico-pj')+'">'+(cb?'💻':'📽️')+'</div><div class="item-info"><div class="item-name">'+esc(a.kode)+' · '+esc(a.merek)+' '+esc(a.model)+'</div><div class="item-sub">'+esc(a.lokasi||'-')+'</div></div><span class="badge badge-green">Tersedia</span></div>';}).join(''):'<div style="text-align:center;padding:20px;color:var(--gray3);font-size:13px">Tidak ada perangkat tersedia</div>';
+  }
+}
+
+// ── PENGEMBALIAN ────────────────────────────────────────
+var kembaliId=null;
+function openKembali(id){
+  var l=loanIndex[id];if(!l){alert('Data peminjaman tidak ditemukan. Muat ulang halaman.');return;}
+  kembaliId=id;
+  document.getElementById('kb-info').textContent=l.kode+' · dipinjam '+l.guru+' ('+l.kelas+') sejak '+l.tgl+' '+l.jam;
+  document.getElementById('kb-kondisi').value='Baik';
+  document.getElementById('kb-ket').value='';
+  document.getElementById('kembali-modal').style.display='flex';
+}
+function closeKembali(){document.getElementById('kembali-modal').style.display='none';kembaliId=null;}
+function toast(msg){
+  var d=document.createElement('div');
+  d.textContent=msg;
+  d.style.cssText='position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#0F6E56;color:white;padding:11px 18px;border-radius:99px;font-size:13px;font-weight:600;z-index:1000;box-shadow:0 4px 14px rgba(0,0,0,.25);max-width:90%;text-align:center';
+  document.body.appendChild(d);setTimeout(function(){d.remove();},3000);
+}
+function submitKembali(){
+  if(!kembaliId)return;
+  var id=kembaliId;
+  var payload={action:'kembali',id_pinjam:id,kondisi:document.getElementById('kb-kondisi').value,ket:document.getElementById('kb-ket').value.trim(),oleh:currentUser?currentUser.nama:''};
+  document.getElementById('loading-overlay').classList.add('show');
+  fetch(API_URL,{method:'POST',body:JSON.stringify(payload)})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    document.getElementById('loading-overlay').classList.remove('show');
+    if(d.status!=='OK'){alert('❌ '+(d.message||'Gagal menyimpan pengembalian'));return;}
+    closeKembali();
+    toast('✅ Perangkat berhasil dikembalikan');
+    refreshAll();
+  })
+  .catch(function(){
+    document.getElementById('loading-overlay').classList.remove('show');
+    alert('Gagal terhubung ke server. Pengembalian BELUM tersimpan.');
+  });
+}
+function refreshAll(){
+  var cur=document.querySelector('.screen.active');var id=cur?cur.id:'';
+  fetch(API_URL+'?action=aset').then(function(r){return r.json();}).then(function(d){
+    if(d.status==='OK'&&d.data){
+      allAsetData=d.data;allAktif=d.aktif||[];
+      allAktif.forEach(function(l){loanIndex[l.id]=l;});
+      renderHome();renderAset(allAsetData);
+      if(id==='sc-detail'&&currentKode)showDetailByKode(currentKode,true);
+    }
+  }).catch(function(){});
+  if(id==='sc-riwayat')loadRiwayat();
+  if(id==='sc-notif')loadNotif();
+}
+
+function showDetailByKode(kode,stay){
+  var a=allAsetData.filter(function(x){return x.kode===kode;})[0];
+  if(!a)return;
   currentKode=kode;
-  document.getElementById('d-kode').textContent=kode;
-  document.getElementById('d-nama').textContent=nama+' · '+merek;
-  document.getElementById('d-merek').textContent=merek;
-  document.getElementById('d-model').textContent=model;
-  document.getElementById('d-seri').textContent=seri;
-  document.getElementById('d-tahun').textContent=tahun;
-  document.getElementById('d-kondisi').textContent=kondisi;
-  document.getElementById('d-status').textContent=status;
-  document.getElementById('d-lokasi').textContent=lokasi;
-  switchScreen('detail',1);
+  var set=function(id,v){document.getElementById(id).textContent=v==null||v===''?'-':v;};
+  set('d-kode',a.kode);
+  set('d-nama',(a.nama||'')+' · '+(a.merek||''));
+  set('d-merek',a.merek);set('d-model',a.model);set('d-seri',a.seri);set('d-tahun',a.tahun);
+  set('d-kondisi',a.kondisi);set('d-status',a.status);set('d-lokasi',a.lokasi);
+  var loans=allAktif.filter(function(l){return l.kode===kode;});
+  var k=statKey(a);
+  var btn=document.getElementById('btn-pinjam-detail'),box=document.getElementById('d-aktif'),info=document.getElementById('d-info');
+  btn.style.display=(k==='tersedia'&&canBorrow())?'flex':'none';
+  info.style.display='none';
+  if(loans.length){
+    box.style.display='block';
+    box.innerHTML='<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray3);margin-bottom:8px">Sedang dipinjam ('+loans.length+')</div>'
+      +loans.map(function(l){return loanCard(l);}).join('');
+  }else{box.style.display='none';box.innerHTML='';}
+  if(k==='rusak'){info.style.display='block';info.textContent='🔧 Perangkat ini tidak dapat dipinjam ('+(a.status||'perlu perbaikan')+(a.ket?': '+a.ket:'')+')';}
+  if(!stay)switchScreen('detail',1);
 }
 
 function pinjamDariDetail(){
@@ -711,24 +839,27 @@ function pinjamDariDetail(){
 }
 
 function showAsetResult(kode){
-  var aset=asetDB[kode];
-  if(!aset)return false;
+  var aset=allAsetData.filter(function(x){return x.kode===kode;})[0];
+  if(!aset){alert(allAsetData.length?'Kode '+kode+' tidak ditemukan!':'Data aset belum termuat, coba lagi sebentar.');return false;}
+  if(statKey(aset)!=='tersedia'){alert(kode+' tidak bisa dipinjam — status: '+aset.status+'.\nJika sedang dipinjam, kembalikan dulu lewat Dashboard.');return false;}
   document.getElementById('r-kode').textContent=kode;
-  document.getElementById('r-nama').textContent=aset.nama;
+  document.getElementById('r-nama').textContent=(aset.merek||'')+' '+(aset.model||'');
   document.getElementById('r-kondisi').textContent=aset.kondisi+(aset.kondisi==='Baik'?' ✓':'');
   document.getElementById('r-status').textContent=aset.status;
   document.getElementById('scan-result').classList.remove('hidden');
   document.getElementById('form-isian').style.display='block';
   document.getElementById('btn-ambil').style.display='flex';
   var now=new Date();
-  document.getElementById('f-tgl').value=now.toISOString().split('T')[0];
-  document.getElementById('f-jam').value=now.toTimeString().slice(0,5);
+  var pad=function(n){return String(n).padStart(2,'0');};
+  document.getElementById('f-tgl').value=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
+  document.getElementById('f-jam').value=pad(now.getHours())+':'+pad(now.getMinutes());
   document.getElementById('manual-kode').value=kode;
   return true;
 }
 
 function checkManual(val){
-  if(val.length>=4&&asetDB[val])showAsetResult(val);
+  val=(val||'').toUpperCase().trim();
+  if(val.length>=4&&allAsetData.some(function(x){return x.kode===val;}))showAsetResult(val);
 }
 
 function startScan(){
@@ -746,7 +877,7 @@ function startScan(){
         var ctx=c.getContext('2d');ctx.drawImage(v,0,0);
         var id=ctx.getImageData(0,0,c.width,c.height);
         var code=jsQR(id.data,id.width,id.height);
-        if(code){var k=code.data.toUpperCase().trim();stopScan();if(!showAsetResult(k)){alert('Kode '+k+' tidak ditemukan!');document.getElementById('btn-scan').classList.remove('hidden');}}
+        if(code){var k=code.data.toUpperCase().trim();stopScan();if(!showAsetResult(k)){document.getElementById('btn-scan').classList.remove('hidden');}}
       }catch(e){}
     },300);
   })
@@ -777,8 +908,11 @@ function submitPinjam(){
   document.getElementById('loading-overlay').classList.add('show');
   fetch(API_URL,{method:'POST',body:JSON.stringify(payload)})
   .then(function(res){return res.json();})
-  .then(function(data){selesaiSimpan(kode,guru,kelas,tgl,jam);})
-  .catch(function(){selesaiSimpan(kode,guru,kelas,tgl,jam);});
+  .then(function(data){
+    if(data.status==='OK'){selesaiSimpan(kode,guru,kelas,tgl,jam);loadHome();}
+    else{document.getElementById('loading-overlay').classList.remove('show');alert('❌ '+(data.message||'Gagal menyimpan peminjaman'));loadHome();}
+  })
+  .catch(function(){document.getElementById('loading-overlay').classList.remove('show');alert('Gagal terhubung ke server. Peminjaman BELUM tersimpan.');});
 }
 
 function selesaiSimpan(kode,guru,kelas,tgl,jam){
@@ -787,10 +921,6 @@ function selesaiSimpan(kode,guru,kelas,tgl,jam){
   document.getElementById('s-guru').textContent=guru;
   document.getElementById('s-kelas').textContent=kelas;
   document.getElementById('s-waktu').textContent=tgl+' · '+jam;
-  if(asetDB[kode])asetDB[kode].status='Dipinjam';
-  var item='<div class="riwayat-item"><div class="riwayat-dot" style="background:var(--a2)"></div><div class="riwayat-info"><div class="riwayat-title">'+kode+' dipinjam · '+kelas+'</div><div class="riwayat-sub">'+guru+'</div></div><div class="riwayat-time">'+jam+'</div></div>';
-  var rl=document.getElementById('riwayat-list');
-  if(rl)rl.insertAdjacentHTML('afterbegin',item);
   switchScreen('success',2);
 }
 
@@ -818,6 +948,7 @@ function loadRiwayat() {
       return;
     }
     var rows=data.data;
+    rows.forEach(function(r){loanIndex[r.id]=r;});
     if(rows.length===0){
       document.getElementById('riwayat-list').innerHTML='<div style="text-align:center;padding:32px;color:var(--gray3)"><div style="font-size:32px;margin-bottom:12px">📋</div><div style="font-size:13px">Belum ada transaksi peminjaman</div></div>';
       document.getElementById('riwayat-list').style.display='block';
@@ -833,9 +964,10 @@ function loadRiwayat() {
       html+='<div class="riwayat-item">'
         +'<div class="riwayat-dot" style="background:'+dot+'"></div>'
         +'<div class="riwayat-info">'
-          +'<div class="riwayat-title"><strong>'+r.kode+'</strong> · '+r.kelas+'</div>'
-          +'<div class="riwayat-sub">'+r.guru+' · '+tgl+' '+jam+'</div>'
+          +'<div class="riwayat-title"><strong>'+esc(r.kode)+'</strong> · '+esc(r.kelas)+'</div>'
+          +'<div class="riwayat-sub">'+esc(r.guru)+' · '+esc(tgl)+' '+esc(jam)+(r.tgl_kembali?' → kembali '+esc(r.tgl_kembali)+' '+esc(r.jam_kembali)+(r.kondisi?' ('+esc(r.kondisi)+')':''):'')+'</div>'
         +'</div>'
+        +(status==='Dipinjam'&&canBorrow()?'<button onclick="openKembali(\''+esc(r.id)+'\')" style="background:var(--g2);color:white;border:none;border-radius:99px;padding:6px 10px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;margin-right:6px">↩ Kembalikan</button>':'')
         +'<span style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;white-space:nowrap;'+badgeStyle+'">'+status+'</span>'
       +'</div>';
     });
