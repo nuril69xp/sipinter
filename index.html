@@ -680,7 +680,8 @@ function renderAset(data){
     var stat = (a.status||'Tersedia');
     var badgeCls = stat==='Tersedia' ? 'badge-green' : stat==='Dipinjam' ? 'badge-amber' : 'badge-red';
     var sub2 = a.ket ? a.ket : (a.lokasi||'-');
-    html += '<div class="item-card" data-type="'+tipe+'" data-status="'+stat.toLowerCase().replace(' ','')+'" onclick="showDetail(''+a.kode+'',''+a.nama+'',''+a.merek+'',''+a.model+'',''+a.seri+'',''+a.tahun+'',''+a.kondisi+'',''+a.status+'',''+a.lokasi+'')">'
+    var args=[a.kode,a.nama,a.merek,a.model,a.seri,a.tahun,a.kondisi,a.status,a.lokasi].map(function(v){return "'"+String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')+"'";}).join(',');
+    html += '<div class="item-card" data-type="'+tipe+'" data-status="'+stat.toLowerCase().replace(' ','')+'" onclick="showDetail('+args+')">'
           + '<div class="item-ico '+ico+'">'+emo+'</div>'
           + '<div class="item-info"><div class="item-name">'+a.kode+' · '+a.merek+' '+a.model+'</div><div class="item-sub">'+sub2+'</div></div>'
           + '<span class="badge '+badgeCls+'">'+stat+'</span>'
