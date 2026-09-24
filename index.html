@@ -156,11 +156,11 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
           <div style="position:relative">
             <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px">🔒</span>
             <input id="login-pass" type="password" placeholder="Ketik password Anda" autocomplete="current-password" style="width:100%;padding:11px 40px 11px 40px;border:1.5px solid #D3D1C7;border-radius:8px;font-size:14px;font-family:inherit;color:#1A1A1A;background:#F1EFE8;outline:none" onkeydown="if(event.key==='Enter'){doLogin()}">
-            <button type="button" id="btn-eye" onclick="togglePass()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0">👁️</button>
+            <button type="button" id="btn-eye" type="button" onclick="togglePass()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0;color:#888780">👁️</button>
           </div>
         </div>
         <div id="login-error" style="display:none;background:#FCEBEB;border:1px solid #F09595;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#A32D2D;text-align:center"></div>
-        <button type="button" onclick="doLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0F6E56,#1D9E75);color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px">Masuk →</button>
+        <button type="button" id="btn-masuk" onclick="doLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0F6E56,#1D9E75);color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px">Masuk →</button>
         <div style="text-align:center;margin-top:14px;font-size:11px;color:#888780">Lupa username/password? Hubungi Admin</div>
       </div>
       <div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(255,255,255,0.5)">© 2026 SMP Negeri 8 Tanjungpinang</div>
@@ -555,17 +555,19 @@ function switchScreen(name,navIdx){
 }
 
 function togglePass(){
-  var p=document.getElementById('login-pass');
-  var b=document.getElementById('btn-eye');
-  if(p.type==='password'){p.type='text';b.textContent='🙈';}
-  else{p.type='password';b.textContent='👁️';}
+  try{
+    var p=document.getElementById('login-pass');
+    var b=document.getElementById('btn-eye');
+    if(p.type==='password'){p.type='text';b.textContent='🙈';}
+    else{p.type='password';b.textContent='👁️';}
+  }catch(e){console.log('togglePass error:',e);}
 }
 
 function doLogin(){
   var uname=document.getElementById('login-user').value.trim().toLowerCase();
   var pass=document.getElementById('login-pass').value;
   var err=document.getElementById('login-error');
-  var btn=document.querySelector('#sc-login button[onclick="doLogin()"]');
+  var btn=document.getElementById('btn-masuk');
   err.style.display='none';
   if(!uname||!pass){err.style.display='block';err.textContent='❌ Username dan password wajib diisi';return;}
   if(btn){btn.textContent='Memeriksa...';btn.disabled=true;}
