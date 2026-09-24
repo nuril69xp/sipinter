@@ -192,6 +192,8 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-icon si-blue">💻</div><div class="stat-num" id="stat-cb">–</div><div class="stat-label">Chromebook</div></div>
       <div class="stat-card"><div class="stat-icon si-amber">📽️</div><div class="stat-num" id="stat-pj">–</div><div class="stat-label">Proyektor</div></div>
+      <div class="stat-card"><div class="stat-icon si-blue">📦</div><div class="stat-num" id="stat-lain">–</div><div class="stat-label">Laptop & Lainnya</div></div>
+      <div class="stat-card"><div class="stat-icon si-blue">🗂️</div><div class="stat-num" id="stat-total">–</div><div class="stat-label">Total Aset</div></div>
       <div class="stat-card"><div class="stat-icon si-amber">🔓</div><div class="stat-num" id="stat-pinjam">–</div><div class="stat-label">Sedang Dipinjam</div></div>
       <div class="stat-card"><div class="stat-icon si-red">🔧</div><div class="stat-num" id="stat-rusak">–</div><div class="stat-label">Perlu Perbaikan</div></div>
     </div>
@@ -214,6 +216,7 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
     <div class="filter-chip active" onclick="filterAset('semua',this)">Semua</div>
     <div class="filter-chip" onclick="filterAset('chromebook',this)">Chromebook</div>
     <div class="filter-chip" onclick="filterAset('proyektor',this)">Proyektor</div>
+    <div class="filter-chip" onclick="filterAset('lainnya',this)">Lainnya</div>
     <div class="filter-chip" onclick="filterAset('tersedia',this)">Tersedia</div>
     <div class="filter-chip" onclick="filterAset('dipinjam',this)">Dipinjam</div>
     <div class="filter-chip" onclick="filterAset('rusak',this)">Rusak</div>
@@ -296,7 +299,7 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
       </div>
       <div class="form-group">
         <label class="form-label">Kelas / Ruang</label>
-        <select class="form-select" id="f-kelas">
+        <select class="form-select" id="f-kelas" onchange="document.getElementById('f-kelas-lain').style.display=(this.value==='__lain__')?'block':'none'">
           <option value="">-- Pilih Kelas/Ruang --</option>
           <option>VII.A</option><option>VII.B</option>
           <option>VIII.A</option><option>VIII.B</option>
@@ -304,7 +307,11 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
           <option>Aula</option><option>Lab Kom 1</option><option>Lab Kom 2</option>
           <option>Lab IPA</option><option>Perpustakaan</option>
           <option>Majelis Guru</option><option>Moving Class</option>
+          <option>Ruang TU</option><option>Ruang Kepala Sekolah</option>
+          <option>Penggunaan Pribadi (dibawa)</option>
+          <option value="__lain__">Lainnya (ketik sendiri)...</option>
         </select>
+        <input class="form-input" id="f-kelas-lain" placeholder="Tulis kelas / ruang / keperluan" style="display:none;margin-top:8px">
       </div>
       <div class="form-group">
         <label class="form-label">Tanggal Pinjam</label>
@@ -726,6 +733,7 @@ function renderAset(data){
     if(f==='semua') return true;
     if(f==='chromebook') return isCB(a);
     if(f==='proyektor') return isPJ(a);
+    if(f==='lainnya') return !isCB(a)&&!isPJ(a);
     return k===f;
   });
   var html = '';
@@ -786,6 +794,8 @@ function renderHome(){
   var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
   set('stat-cb',allAsetData.filter(isCB).length);
   set('stat-pj',allAsetData.filter(isPJ).length);
+  set('stat-lain',allAsetData.filter(function(a){return !isCB(a)&&!isPJ(a);}).length);
+  set('stat-total',allAsetData.length);
   set('stat-pinjam',allAktif.length);
   set('stat-rusak',allAsetData.filter(function(a){return statKey(a)==='rusak';}).length);
   var h=document.getElementById('home-aktif');
@@ -938,6 +948,7 @@ function generateId(){
 function submitPinjam(){
   var guru=document.getElementById('f-guru').value;
   var kelas=document.getElementById('f-kelas').value;
+  if(kelas==='__lain__')kelas=document.getElementById('f-kelas-lain').value.trim();
   var kode=document.getElementById('r-kode').textContent;
   var tgl=document.getElementById('f-tgl').value;
   var jam=document.getElementById('f-jam').value;
@@ -969,6 +980,8 @@ function resetForm(){
   document.getElementById('btn-ambil').style.display='none';
   document.getElementById('f-guru').value='';
   document.getElementById('f-kelas').value='';
+  document.getElementById('f-kelas-lain').value='';
+  document.getElementById('f-kelas-lain').style.display='none';
   document.getElementById('manual-kode').value='';
 }
 
