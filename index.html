@@ -695,7 +695,7 @@ function doLogin(){
       return;
     }
     currentUser={username:uname,nama:data.nama,role:data.role,inisial:data.inisial||uname.substring(0,2).toUpperCase()};
-    try{sessionStorage.setItem('sipinter_session',JSON.stringify(currentUser));}catch(e){}
+    try{localStorage.setItem('sipinter_session',JSON.stringify({user:currentUser,waktu:Date.now()}));}catch(e){}
     applyUser(currentUser);
     applyAccess(currentUser.role);
     switchScreen('home',0);
@@ -736,7 +736,7 @@ function applyAccess(role){
 function doLogout(){
   var nav=document.getElementById('bottom-nav');
   if(nav)nav.style.display='none';
-  try{sessionStorage.removeItem('sipinter_session');}catch(e){}
+  try{localStorage.removeItem('sipinter_session');}catch(e){}
   currentUser=null;
   document.getElementById('login-user').value='';
   document.getElementById('login-pass').value='';
@@ -841,11 +841,18 @@ function loadHome(){
   });
 }
 
+function waktuPinjamDate(l){
+  var m=(l.tgl||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(!m)return null;
+  var d=new Date(+m[1],+m[2]-1,+m[3]);
+  var j=(l.jam||'').match(/^(\d{1,2}):(\d{2})/);
+  if(j)d.setHours(+j[1],+j[2],0,0);
+  return d;
+}
 function isTerlambat(l){
   if(/pribadi/i.test(l.kelas||''))return false;
-  var t=Date.parse(l.tgl);if(isNaN(t))return false;
-  var today=new Date();today.setHours(0,0,0,0);
-  return t<today.getTime();
+  var d=waktuPinjamDate(l);if(!d)return false;
+  return (Date.now()-d.getTime())>=8*60*60*1000; // 8 jam
 }
 
 function loanCard(l,withImg){
@@ -1265,7 +1272,7 @@ function loadNotif(){
         var tombol=t.hp
           ? '<a href="https://wa.me/'+t.hp+'?text='+encodeURIComponent(t.pesan)+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;background:#25D366;color:white;text-decoration:none;border-radius:99px;padding:7px 14px;font-size:12px;font-weight:700">💬 Ingatkan via WhatsApp</a>'
           : '<div style="margin-top:8px;font-size:11px;color:var(--r2);font-weight:600">⚠️ Nomor HP belum diisi di sheet pengguna</div>';
-        html+='<div class="notif-item"><div class="notif-ico-wrap" style="background:var(--r4)">⏰</div><div style="flex:1"><div class="notif-text"><strong>'+esc(t.kode)+(t.aset?' · '+esc(t.aset):'')+'</strong> — '+esc(t.guru)+' · '+esc(t.kelas)+'</div><div class="notif-time">Sejak '+esc(t.tgl)+' '+esc(t.jam)+' · terlambat '+t.hari+' hari</div>'+tombol+'</div></div>';
+        html+='<div class="notif-item"><div class="notif-ico-wrap" style="background:var(--r4)">⏰</div><div style="flex:1"><div class="notif-text"><strong>'+esc(t.kode)+(t.aset?' · '+esc(t.aset):'')+'</strong> — '+esc(t.guru)+' · '+esc(t.kelas)+'</div><div class="notif-time">Sejak '+esc(t.tgl)+' '+esc(t.jam)+' · terlambat '+esc(t.teksLewat)+'</div>'+tombol+'</div></div>';
       });
     }
     var idTerlambat={};terlambat.forEach(function(t){idTerlambat[t.id]=true;});
@@ -1373,11 +1380,17 @@ document.getElementById('f-tgl').value=now.toISOString().split('T')[0];
 document.getElementById('f-jam').value=now.toTimeString().slice(0,5);
 
 function lanjutkanInit(){
+  // Jangan timpa layar yang sedang dibuka kalau pengguna sudah aktif memakai aplikasi
+  // (misalnya baru saja pulih dari mode Maintenance di tengah pemakaian)
+  var loginAktif=document.getElementById('sc-login').classList.contains('active');
+  if(currentUser&&!loginAktif)return;
   // Auto-login from session
   try{
-    var saved=sessionStorage.getItem('sipinter_session');
-    if(saved){
-      currentUser=JSON.parse(saved);
+    var saved=localStorage.getItem('sipinter_session');
+    var sesi=saved?JSON.parse(saved):null;
+    var BATAS_SESI=24*60*60*1000; // sesi bertahan 24 jam sejak login, lalu diminta login ulang
+    if(sesi&&sesi.user&&sesi.waktu&&(Date.now()-sesi.waktu)<BATAS_SESI){
+      currentUser=sesi.user;
       applyUser(currentUser);
       applyAccess(currentUser.role);
       var tujuan=new URLSearchParams(location.search).get('goto');
@@ -1387,6 +1400,8 @@ function lanjutkanInit(){
         document.getElementById('sc-home').classList.add('active');
       }
       if(history.replaceState)history.replaceState(null,'',location.pathname);
+    }else if(sesi){
+      localStorage.removeItem('sipinter_session'); // sesi lama sudah kedaluwarsa
     }
   }catch(e){}
 }
@@ -1399,9 +1414,8 @@ function cekMaintenance(manual){
       if(!maintPollTimer)maintPollTimer=setInterval(function(){cekMaintenance(false);},20000);
     }else{
       if(maintPollTimer){clearInterval(maintPollTimer);maintPollTimer=null;}
-      var wasHidden=document.getElementById('maint-screen').style.display==='flex';
       document.getElementById('maint-screen').style.display='none';
-      if(wasHidden||manual)lanjutkanInit();
+      lanjutkanInit();
     }
   }).catch(function(){
     // Tidak bisa terhubung ke server sama sekali (bukan maintenance) — tetap lanjutkan ke halaman login
