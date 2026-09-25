@@ -661,6 +661,7 @@ function switchScreen(name,navIdx){
   if(name==='pinjam'&&!allAsetData.length)loadAset();
   if(name==='aset')loadAset();
   if(name==='gantipass')resetGantiPass();
+  if(name==='laporan')siapkanLaporan();
 }
 
 function togglePass(){
@@ -1098,6 +1099,48 @@ function loadRiwayat() {
 }
 
 
+
+
+// ── LAPORAN BULANAN ──────────────────────────────────────
+var NAMA_BULAN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+var lapSudahSiap=false;
+function siapkanLaporan(){
+  if(lapSudahSiap)return;
+  lapSudahSiap=true;
+  var now=new Date();
+  var selBulan=document.getElementById('lap-bulan'),selTahun=document.getElementById('lap-tahun');
+  selBulan.innerHTML=NAMA_BULAN.map(function(n,i){return '<option value="'+(i+1)+'">'+n+'</option>';}).join('');
+  selBulan.value=now.getMonth()+1;
+  var opsTahun='';
+  for(var t=now.getFullYear();t>=now.getFullYear()-2;t--)opsTahun+='<option value="'+t+'">'+t+'</option>';
+  selTahun.innerHTML=opsTahun;
+  muatLaporan();
+}
+function muatLaporan(){
+  var bulan=document.getElementById('lap-bulan').value,tahun=document.getElementById('lap-tahun').value;
+  document.getElementById('lap-status').style.display='block';
+  document.getElementById('lap-status').textContent='⏳ Memuat laporan...';
+  document.getElementById('lap-isi').style.display='none';
+  document.getElementById('btn-kirim-laporan').style.display='none';
+  fetch(API_URL,{method:'POST',body:JSON.stringify({action:'laporanBulanan',bulan:bulan,tahun:tahun,oleh:currentUser?currentUser.nama:''})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d.status!=='OK'){document.getElementById('lap-status').textContent='⚠️ '+(d.message||'Gagal memuat laporan');return;}
+      document.getElementById('lap-status').style.display='none';
+      var isi=document.getElementById('lap-isi');
+      isi.style.display='block'; isi.innerHTML=d.html;
+      document.getElementById('btn-kirim-laporan').style.display='block';
+    }).catch(function(){document.getElementById('lap-status').textContent='⚠️ Gagal terhubung ke server';});
+}
+function kirimLaporanEmail(){
+  var bulan=document.getElementById('lap-bulan').value,tahun=document.getElementById('lap-tahun').value;
+  document.getElementById('loading-overlay').classList.add('show');
+  fetch(API_URL,{method:'POST',body:JSON.stringify({action:'kirimLaporanEmail',bulan:bulan,tahun:tahun,oleh:currentUser?currentUser.nama:''})})
+    .then(function(r){return r.json();}).then(function(d){
+      document.getElementById('loading-overlay').classList.remove('show');
+      if(d.status!=='OK'){alert('❌ '+(d.message||'Gagal mengirim email'));return;}
+      toast('✅ Laporan dikirim ke '+(d.terkirimKe?d.terkirimKe.length:0)+' email');
+    }).catch(function(){document.getElementById('loading-overlay').classList.remove('show');alert('Gagal terhubung ke server.');});
+}
 
 // ── UBAH STATUS PERBAIKAN (Admin & Pengurus Barang) ─────
 var usId=null;
