@@ -231,6 +231,7 @@ setTimeout(hideSplash,1700);
 <div class="screen fade-in" id="sc-aset">
   <div class="topbar"><div class="topbar-inner"><div class="topbar-row"><div class="school-row"><img data-logo="sekolah" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="school-logo" alt="Logo"><div><div class="app-name">Daftar Aset</div><div class="app-sub" id="aset-subtitle">Memuat data...</div></div></div></div></div></div>
   <div id="btn-tambah-aset" style="display:none;padding:12px 16px 0"><button onclick="openTambahAset()" style="width:100%;padding:12px;background:white;color:var(--g2);border:2px dashed var(--g2);border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">➕ Tambah Aset Baru</button></div>
+  <div id="btn-cetak-label" style="display:none;padding:8px 16px 0"><button onclick="location.href='labels.html'" style="width:100%;padding:11px;background:transparent;color:var(--gray1);border:1.5px solid #D3D1C7;border-radius:12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">🖨️ Cetak Label QR</button></div>
   <div class="filter-row" id="aset-filter-row">
     <div class="filter-chip active" onclick="filterAset('semua',this)">Semua</div>
     <div class="filter-chip" onclick="filterAset('chromebook',this)">Chromebook</div>
@@ -694,6 +695,8 @@ function applyAccess(role){
   if(n4)n4.style.display=acc.notif?'flex':'none';
   var ta=document.getElementById('btn-tambah-aset');
   if(ta)ta.style.display=acc.tambahAset?'block':'none';
+  var cl=document.getElementById('btn-cetak-label');
+  if(cl)cl.style.display=acc.tambahAset?'block':'none';
 }
 
 function doLogout(){
