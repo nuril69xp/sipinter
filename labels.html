@@ -49,7 +49,7 @@
   <div class="bar">
     <div><h1>🖨️ Cetak Label QR</h1><p>Si-PINTER SEKOLAH · SMP Negeri 8 Tanjungpinang</p></div>
     <div class="actions">
-      <button class="btn-ghost" onclick="location.href='index.html'">← Kembali ke Aplikasi</button>
+      <button class="btn-ghost" onclick="kembaliApp()">← Kembali ke Aplikasi</button>
       <button class="btn-white" onclick="window.print()">🖨️ Cetak</button>
     </div>
   </div>
@@ -69,6 +69,7 @@
       <div class="list" id="list"></div>
     </div>
     <div id="status">⏳ Memuat daftar aset...</div>
+    <div id="kosong-pesan" style="display:none;text-align:center;padding:30px;color:var(--gray3);font-size:13px">📭 Belum ada aset yang dicentang. Centang di daftar atas, atau tekan "Pilih Semua".</div>
     <div class="sheet" id="sheet" style="display:none"></div>
   </div>
 
@@ -77,6 +78,13 @@ var API_URL='https://script.google.com/macros/s/AKfycbwnmPN4IMAM07wOj47OWhzRq6BQ
 var SEKOLAH='SMP Negeri 8 Tanjungpinang';
 var semuaAset=[], dipilih={}, filterAktif='semua';
 
+function kembaliApp(){
+  // Coba kembali persis ke layar sebelumnya (biasanya masih tersimpan di memori browser).
+  // Jika beberapa saat kemudian halaman ini masih terbuka, berarti tidak ada riwayat untuk
+  // kembali (dibuka di tab baru), jadi buka index.html langsung ke layar Aset.
+  history.back();
+  setTimeout(function(){ location.href='index.html?goto=aset'; },500);
+}
 function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function jenis(kode){var p=String(kode).toUpperCase().split('-')[0];return p==='CB'?'cb':p==='PJ'?'pj':'lain';}
 
@@ -87,7 +95,8 @@ function muat(){
       return;
     }
     semuaAset=d.data;
-    semuaAset.forEach(function(a){dipilih[a.kode]=true;});
+    // Sengaja TIDAK mencentang semua secara default, supaya tidak ada aset yang
+    // ikut tercetak tanpa disadari. Gunakan "Pilih Semua" untuk mencentang sekaligus.
     document.getElementById('status').style.display='none';
     renderList(); renderSheet();
   }).catch(function(){
@@ -116,7 +125,9 @@ function pilihSemua(v){terfilter().forEach(function(a){dipilih[a.kode]=v;});rend
 function renderSheet(){
   var pakai=semuaAset.filter(function(a){return dipilih[a.kode];});
   var sheet=document.getElementById('sheet');
+  var kosong=document.getElementById('kosong-pesan');
   sheet.style.display=pakai.length?'grid':'none';
+  if(kosong)kosong.style.display=pakai.length?'none':'block';
   sheet.innerHTML='';
   pakai.forEach(function(a){
     var lab=document.createElement('div'); lab.className='label';
