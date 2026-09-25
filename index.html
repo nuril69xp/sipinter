@@ -374,6 +374,10 @@ setTimeout(hideSplash,1700);
 <div class="screen fade-in" id="sc-riwayat">
   <div class="topbar"><div class="topbar-inner"><div class="school-row"><img data-logo="sekolah" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="school-logo" alt="Logo"><div><div class="app-name">Riwayat Peminjaman</div><div class="app-sub">Log semua transaksi</div></div></div></div></div>
   <div style="padding:16px">
+    <div id="riwayat-toggle" style="display:none;gap:8px;margin-bottom:14px">
+      <div class="filter-chip active" id="rt-semua" onclick="setRiwayatMode('semua')">Semua</div>
+      <div class="filter-chip" id="rt-saya" onclick="setRiwayatMode('saya')">Punya Saya</div>
+    </div>
     <div id="riwayat-loading" style="text-align:center;padding:32px;color:var(--gray3)"><div style="font-size:32px;margin-bottom:12px">⏳</div><div style="font-size:13px">Memuat riwayat dari Google Sheets...</div></div>
     <div id="riwayat-error" style="display:none;background:var(--r4);border-radius:var(--rad);padding:16px;text-align:center;color:var(--r2)"><div style="font-size:24px;margin-bottom:8px">⚠️</div><div style="font-size:13px;font-weight:600">Gagal memuat riwayat</div><button onclick="loadRiwayat()" style="margin-top:12px;padding:8px 16px;background:var(--r2);color:white;border:none;border-radius:var(--rad-sm);font-size:12px;font-weight:600;cursor:pointer">Coba Lagi</button></div>
     <div id="riwayat-list" style="display:none"></div>
@@ -1052,10 +1056,22 @@ function resetForm(){
 }
 
 // ── RIWAYAT REAL-TIME ────────────────────────────────────
+var riwayatSemuaData=[], riwayatMode='semua';
+function setRiwayatMode(m){
+  riwayatMode=m;
+  document.getElementById('rt-semua').classList.toggle('active',m==='semua');
+  document.getElementById('rt-saya').classList.toggle('active',m==='saya');
+  tampilkanRiwayat();
+}
 function loadRiwayat() {
   document.getElementById('riwayat-loading').style.display='block';
   document.getElementById('riwayat-error').style.display='none';
   document.getElementById('riwayat-list').style.display='none';
+
+  var akses=currentUser&&ROLE_ACCESS[currentUser.role];
+  var bisaLihatSemua=akses&&akses.riwayatSemua;
+  document.getElementById('riwayat-toggle').style.display=bisaLihatSemua?'flex':'none';
+  riwayatMode=bisaLihatSemua?'semua':'saya';
 
   fetch(API_URL + '?action=riwayat')
   .then(function(res){return res.json();})
@@ -1065,13 +1081,25 @@ function loadRiwayat() {
       document.getElementById('riwayat-error').style.display='block';
       return;
     }
-    var rows=data.data;
-    rows.forEach(function(r){loanIndex[r.id]=r;});
-    if(rows.length===0){
-      document.getElementById('riwayat-list').innerHTML='<div style="text-align:center;padding:32px;color:var(--gray3)"><div style="font-size:32px;margin-bottom:12px">📋</div><div style="font-size:13px">Belum ada transaksi peminjaman</div></div>';
-      document.getElementById('riwayat-list').style.display='block';
-      return;
-    }
+    riwayatSemuaData=data.data;
+    riwayatSemuaData.forEach(function(r){loanIndex[r.id]=r;});
+    tampilkanRiwayat();
+  }).catch(function(){
+    document.getElementById('riwayat-loading').style.display='none';
+    document.getElementById('riwayat-error').style.display='block';
+  });
+}
+function tampilkanRiwayat(){
+  var rows=riwayatSemuaData;
+  if(riwayatMode==='saya'&&currentUser){
+    rows=rows.filter(function(r){return samaOrang(r.guru,currentUser.nama);});
+  }
+  if(rows.length===0){
+    var pesanKosong=riwayatMode==='saya'?'Anda belum pernah meminjam apa pun':'Belum ada transaksi peminjaman';
+    document.getElementById('riwayat-list').innerHTML='<div style="text-align:center;padding:32px;color:var(--gray3)"><div style="font-size:32px;margin-bottom:12px">📋</div><div style="font-size:13px">'+pesanKosong+'</div></div>';
+    document.getElementById('riwayat-list').style.display='block';
+    return;
+  }
     var html='';
     rows.forEach(function(r){
       var status=r.status||'Dipinjam';
@@ -1091,11 +1119,6 @@ function loadRiwayat() {
     });
     document.getElementById('riwayat-list').innerHTML=html;
     document.getElementById('riwayat-list').style.display='block';
-  })
-  .catch(function(){
-    document.getElementById('riwayat-loading').style.display='none';
-    document.getElementById('riwayat-error').style.display='block';
-  });
 }
 
 
@@ -1217,6 +1240,7 @@ function submitTambahAset(){
 
 // ── NOTIFIKASI REAL-TIME (kondisi_log + belum dikembalikan) ──
 function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function samaOrang(a,b){var n=function(x){return String(x||'').toLowerCase().replace(/[^a-z0-9]/g,'');};return n(a)===n(b);}
 function loadNotif(){
   var ld=document.getElementById('notif-loading'),ls=document.getElementById('notif-list');
   ld.style.display='block';ls.style.display='none';
