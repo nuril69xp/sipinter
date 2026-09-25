@@ -217,6 +217,11 @@ setTimeout(hideSplash,1700);
       <div class="stat-card"><div class="stat-icon si-red">🔧</div><div class="stat-num" id="stat-rusak">–</div><div class="stat-label">Perlu Perbaikan</div></div>
     </div>
   </div>
+  <div id="kartu-laporan" style="display:none;margin:0 16px 14px;background:linear-gradient(120deg,#0F6E56,#1D9E75);border-radius:14px;padding:14px 16px;align-items:center;gap:12px;cursor:pointer" onclick="switchScreen('laporan',0)">
+    <div style="font-size:26px">📊</div>
+    <div style="flex:1;color:#fff"><div style="font-weight:700;font-size:14px">Laporan Bulanan</div><div style="font-size:12px;opacity:.9">Ringkasan pemakaian & kerusakan aset</div></div>
+    <div style="color:#fff;font-size:18px">›</div>
+  </div>
   <div class="section">
     <div class="section-hd"><span class="section-title">Peminjaman Aktif</span><span class="section-link" onclick="switchScreen('riwayat',3)">Lihat semua →</span></div>
     <div id="home-aktif"><div style="text-align:center;padding:20px;color:var(--gray3);font-size:13px">Memuat...</div></div>
@@ -385,6 +390,28 @@ setTimeout(hideSplash,1700);
 </div>
 
 <!-- PETUNJUK -->
+<div class="screen fade-in" id="sc-laporan">
+  <div class="topbar" style="padding-bottom:18px">
+    <div class="topbar-inner"><div class="topbar-row"><div>
+      <div style="font-size:18px;font-weight:800;color:#fff">📊 Laporan Bulanan</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.85)">Ringkasan pemakaian & kerusakan aset</div>
+    </div></div></div>
+  </div>
+  <div style="padding:16px">
+    <div style="background:white;border-radius:var(--rad);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <select class="form-select" id="lap-bulan" style="flex:2"></select>
+        <select class="form-select" id="lap-tahun" style="flex:1"></select>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-submit" style="margin-top:0;flex:1" onclick="muatLaporan()">🔄 Muat Laporan</button>
+        <button id="btn-kirim-laporan" style="display:none;flex:1;background:#25D366;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer" onclick="kirimLaporanEmail()">📧 Kirim Email</button>
+      </div>
+    </div>
+    <div id="lap-status" style="text-align:center;padding:30px;color:var(--gray3);font-size:13px">Pilih bulan lalu tekan "Muat Laporan"</div>
+    <div id="lap-isi" style="background:white;border-radius:var(--rad);padding:18px;box-shadow:var(--shadow);display:none"></div>
+  </div>
+</div>
 <div class="screen fade-in" id="sc-petunjuk">
   <div class="topbar"><div class="topbar-inner"><div class="school-row"><img data-logo="sekolah" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="school-logo" alt="Logo"><div><div class="app-name">Petunjuk Penggunaan</div><div class="app-sub">Cara menggunakan Si-PINTER</div></div></div></div></div>
   <div style="padding:16px">
@@ -424,7 +451,7 @@ setTimeout(hideSplash,1700);
     </div>
     <div style="text-align:center;padding:16px;font-size:11px;color:var(--gray3)">
       © 2026 SMP Negeri 8 Tanjungpinang<br>
-      Dibuat dengan ❤️ untuk kemudahan guru<br><br>
+      Dibuat dengan ❤️ untuk kemudahan seluruh warga sekolah<br><br>
       <button type="button" onclick="switchScreen('gantipass',99)" style="background:#E6F1FB;color:#185FA5;border:1px solid #B5D4F4;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;margin-top:12px;width:100%">🔐 Ganti Password</button>
       <button type="button" onclick="doLogout()" style="background:#FCEBEB;color:var(--r2);border:1px solid #F09595;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;margin-top:8px;width:100%">🚪 Ganti Pengguna / Logout</button>
     </div>
@@ -612,10 +639,10 @@ var USERS={
 };
 var ROLE_LABEL={admin:'Admin',guru:'Guru',kepsek:'Kepala Sekolah',tu:'Tata Usaha',pengurus:'Pengurus Barang'};
 var ROLE_ACCESS={
-  admin:  {pinjam:true, riwayatSemua:true, notif:true, tambahAset:true},
-  pengurus:{pinjam:true, riwayatSemua:true, notif:true, tambahAset:true},
+  admin:  {pinjam:true, riwayatSemua:true, notif:true, tambahAset:true, laporan:true},
+  pengurus:{pinjam:true, riwayatSemua:true, notif:true, tambahAset:true, laporan:true},
   guru:   {pinjam:true, riwayatSemua:false,notif:false},
-  kepsek: {pinjam:false,riwayatSemua:true, notif:true},
+  kepsek: {pinjam:false,riwayatSemua:true, notif:true, laporan:true},
   tu:     {pinjam:true, riwayatSemua:true, notif:true}
 };
 var currentUser=null;
@@ -697,6 +724,8 @@ function applyAccess(role){
   if(ta)ta.style.display=acc.tambahAset?'block':'none';
   var cl=document.getElementById('btn-cetak-label');
   if(cl)cl.style.display=acc.tambahAset?'block':'none';
+  var lp=document.getElementById('kartu-laporan');
+  if(lp)lp.style.display=acc.laporan?'flex':'none';
 }
 
 function doLogout(){
@@ -1277,8 +1306,13 @@ function lanjutkanInit(){
       currentUser=JSON.parse(saved);
       applyUser(currentUser);
       applyAccess(currentUser.role);
-      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-      document.getElementById('sc-home').classList.add('active');
+      var tujuan=new URLSearchParams(location.search).get('goto');
+      if(tujuan==='aset'){ switchScreen('aset',1); }
+      else{
+        document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+        document.getElementById('sc-home').classList.add('active');
+      }
+      if(history.replaceState)history.replaceState(null,'',location.pathname);
     }
   }catch(e){}
 }
