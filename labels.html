@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cetak Label QR — Si-PINTER SEKOLAH</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{--g1:#0F6E56;--g2:#1D9E75;--gray1:#2A2A28;--gray3:#8C8A80;--gray5:#F1EFE8;--rad:16px}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--gray5);color:var(--gray1)}
+  .bar{position:sticky;top:0;z-index:10;background:linear-gradient(120deg,#0F6E56,#1D9E75);color:#fff;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .bar h1{font-size:16px;margin:0}
+  .bar p{margin:2px 0 0;font-size:12px;opacity:.9}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  button,.btn{border:none;border-radius:99px;padding:9px 16px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
+  .btn-white{background:#fff;color:var(--g1)}
+  .btn-ghost{background:rgba(255,255,255,.18);color:#fff}
+  .wrap{max-width:900px;margin:0 auto;padding:16px}
+  .panel{background:#fff;border-radius:var(--rad);padding:14px 16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .panel-title{font-size:13px;font-weight:700;margin-bottom:10px}
+  .chiprow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .chip{padding:7px 14px;border-radius:99px;border:1.5px solid #D3D1C7;font-size:12px;font-weight:600;cursor:pointer;background:#fff}
+  .chip.active{background:var(--g1);border-color:var(--g1);color:#fff}
+  .list{max-height:260px;overflow-y:auto;border:1px solid #EDEBE3;border-radius:10px}
+  .row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #F3F1E9;font-size:13px}
+  .row:last-child{border-bottom:none}
+  .row input{width:16px;height:16px}
+  .row .rk{font-weight:700;min-width:56px}
+  .row .rs{margin-left:auto;font-size:11px;color:var(--gray3)}
+  #status{padding:40px;text-align:center;color:var(--gray3);font-size:13px}
+  .sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .label{border:1.5px dashed #C9C6BB;border-radius:10px;padding:10px;text-align:center;background:#fff;break-inside:avoid}
+  .label canvas,.label img{width:100%;max-width:130px;height:auto}
+  .label .kode{font-size:15px;font-weight:800;margin-top:4px}
+  .label .nama{font-size:10px;color:var(--gray3);line-height:1.3;margin-top:1px}
+  .label .sekolah{font-size:8px;color:#B4B1A6;margin-top:4px;letter-spacing:.3px}
+  @media print{
+    .bar,.panel{display:none}
+    body{background:#fff}
+    .wrap{max-width:none;padding:6mm}
+    .sheet{grid-template-columns:repeat(3,1fr);gap:4mm}
+    .label{border:1px dashed #999;page-break-inside:avoid}
+    @page{margin:10mm}
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div><h1>🖨️ Cetak Label QR</h1><p>Si-PINTER SEKOLAH · SMP Negeri 8 Tanjungpinang</p></div>
+    <div class="actions">
+      <button class="btn-ghost" onclick="location.href='index.html'">← Kembali ke Aplikasi</button>
+      <button class="btn-white" onclick="window.print()">🖨️ Cetak</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="panel" id="panel-pilih">
+      <div class="panel-title">Pilih aset yang mau dicetak labelnya</div>
+      <div class="chiprow">
+        <div class="chip active" data-f="semua" onclick="setFilter('semua',this)">Semua</div>
+        <div class="chip" data-f="cb" onclick="setFilter('cb',this)">Chromebook</div>
+        <div class="chip" data-f="pj" onclick="setFilter('pj',this)">Proyektor</div>
+        <div class="chip" data-f="lain" onclick="setFilter('lain',this)">Lainnya</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="chip" style="cursor:pointer" onclick="pilihSemua(true)">✅ Pilih Semua</button>
+        <button class="chip" style="cursor:pointer" onclick="pilihSemua(false)">⬜ Kosongkan</button>
+      </div>
+      <div class="list" id="list"></div>
+    </div>
+    <div id="status">⏳ Memuat daftar aset...</div>
+    <div class="sheet" id="sheet" style="display:none"></div>
+  </div>
+
+<script>
+var API_URL='https://script.google.com/macros/s/AKfycbwnmPN4IMAM07wOj47OWhzRq6BQ3jOZFn4xdqx-Bm9C6HggpqGYioZj3XVfsU299JXEpQ/exec';
+var SEKOLAH='SMP Negeri 8 Tanjungpinang';
+var semuaAset=[], dipilih={}, filterAktif='semua';
+
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function jenis(kode){var p=String(kode).toUpperCase().split('-')[0];return p==='CB'?'cb':p==='PJ'?'pj':'lain';}
+
+function muat(){
+  fetch(API_URL+'?action=aset').then(function(r){return r.json();}).then(function(d){
+    if(d.status!=='OK'||!d.data||!d.data.length){
+      document.getElementById('status').innerHTML='⚠️ Gagal memuat daftar aset. <a href="#" onclick="muat();return false">Coba lagi</a>';
+      return;
+    }
+    semuaAset=d.data;
+    semuaAset.forEach(function(a){dipilih[a.kode]=true;});
+    document.getElementById('status').style.display='none';
+    renderList(); renderSheet();
+  }).catch(function(){
+    document.getElementById('status').innerHTML='⚠️ Tidak bisa terhubung ke server. <a href="#" onclick="muat();return false">Coba lagi</a>';
+  });
+}
+
+function setFilter(f,el){
+  filterAktif=f;
+  document.querySelectorAll('.chip[data-f]').forEach(function(c){c.classList.remove('active');});
+  el.classList.add('active');
+  renderList();
+}
+function terfilter(){return semuaAset.filter(function(a){return filterAktif==='semua'||jenis(a.kode)===filterAktif;});}
+
+function renderList(){
+  var html='';
+  terfilter().forEach(function(a){
+    html+='<label class="row"><input type="checkbox" '+(dipilih[a.kode]?'checked':'')+' onchange="dipilih[\''+a.kode+'\']=this.checked;renderSheet()">'
+      +'<span class="rk">'+esc(a.kode)+'</span><span>'+esc(a.merek)+' '+esc(a.model)+'</span><span class="rs">'+esc(a.status)+'</span></label>';
+  });
+  document.getElementById('list').innerHTML=html||'<div style="padding:16px;text-align:center;color:var(--gray3);font-size:13px">Tidak ada aset pada kategori ini</div>';
+}
+function pilihSemua(v){terfilter().forEach(function(a){dipilih[a.kode]=v;});renderList();renderSheet();}
+
+function renderSheet(){
+  var pakai=semuaAset.filter(function(a){return dipilih[a.kode];});
+  var sheet=document.getElementById('sheet');
+  sheet.style.display=pakai.length?'grid':'none';
+  sheet.innerHTML='';
+  pakai.forEach(function(a){
+    var lab=document.createElement('div'); lab.className='label';
+    var qrBox=document.createElement('div');
+    lab.appendChild(qrBox);
+    var kd=document.createElement('div'); kd.className='kode'; kd.textContent=a.kode; lab.appendChild(kd);
+    var nm=document.createElement('div'); nm.className='nama'; nm.textContent=(a.merek||'')+' '+(a.model||''); lab.appendChild(nm);
+    var sk=document.createElement('div'); sk.className='sekolah'; sk.textContent='Si-PINTER · '+SEKOLAH; lab.appendChild(sk);
+    sheet.appendChild(lab);
+    new QRCode(qrBox,{text:a.kode,width:130,height:130,correctLevel:QRCode.CorrectLevel.M});
+  });
+}
+muat();
+</script>
+</body>
+</html>
