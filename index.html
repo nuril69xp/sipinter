@@ -281,6 +281,12 @@ setTimeout(hideSplash,1700);
     <div class="detail-kode" id="d-kode">-</div><div class="detail-nama" id="d-nama">-</div>
   </div>
   <div class="detail-body">
+    <div id="d-foto-wrap" style="margin-bottom:14px;border-radius:var(--rad);overflow:hidden;box-shadow:var(--shadow);background:white">
+      <img id="d-foto" style="display:none;width:100%;max-height:220px;object-fit:cover">
+      <div id="d-foto-kosong" style="display:none;padding:36px;text-align:center;color:var(--gray3)"><div style="font-size:36px;margin-bottom:6px">📦</div><div style="font-size:12px">Belum ada foto</div></div>
+      <button id="btn-ubah-foto" style="display:none;width:100%;padding:10px;background:var(--gray5);border:none;border-top:1px solid #EDEBE3;font-size:12.5px;font-weight:700;color:var(--gray1);font-family:inherit;cursor:pointer" onclick="document.getElementById('d-foto-input').click()">📷 Ubah Foto</button>
+      <input type="file" accept="image/*" capture="environment" id="d-foto-input" style="display:none" onchange="ubahFotoAset(this)">
+    </div>
     <div style="background:white;border-radius:var(--rad);padding:16px;box-shadow:var(--shadow)">
       <div class="detail-row"><span class="detail-key">Merek</span><span class="detail-val" id="d-merek">-</span></div>
       <div class="detail-row"><span class="detail-key">Model</span><span class="detail-val" id="d-model">-</span></div>
@@ -617,6 +623,10 @@ setTimeout(hideSplash,1700);
     <div class="form-group"><label class="form-label">Lokasi Simpan</label><input class="form-input" id="ta-lokasi" list="ta-lokasi-list" placeholder="Contoh: Lab Komputer">
       <datalist id="ta-lokasi-list"></datalist></div>
     <div class="form-group"><label class="form-label">Keterangan (opsional)</label><input class="form-input" id="ta-ket"></div>
+    <div class="form-group"><label class="form-label">Foto Aset (opsional)</label>
+      <input type="file" accept="image/*" capture="environment" id="ta-foto" onchange="prosesFoto(this,'ta-foto-preview')" style="width:100%;font-size:13px">
+      <img id="ta-foto-preview" style="display:none;margin-top:8px;width:100%;max-height:180px;object-fit:cover;border-radius:10px">
+    </div>
     <button class="btn-submit" onclick="submitTambahAset()">💾 Simpan Aset</button>
     <button class="btn-ulang" onclick="closeTambahAset()">Batal</button>
   </div>
@@ -852,8 +862,9 @@ function renderAset(data){
     var badgeCls = k==='tersedia' ? 'badge-green' : k==='dipinjam' ? 'badge-amber' : 'badge-red';
     var loans = allAktif.filter(function(l){return l.kode===a.kode;});
     var sub2 = loans.length ? (loans.length>1 ? loans.length+' peminjaman aktif' : loans[0].guru+' · '+loans[0].kelas) : (a.ket ? a.ket : (a.lokasi||'-'));
+    var icoIsi = a.foto ? '<img src="'+esc(a.foto)+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">' : emo;
     html += '<div class="item-card" onclick="showDetailByKode(\''+esc(a.kode)+'\')">'
-          + '<div class="item-ico '+ico+'">'+emo+'</div>'
+          + '<div class="item-ico '+ico+'" style="overflow:hidden">'+icoIsi+'</div>'
           + '<div class="item-info"><div class="item-name">'+esc(a.kode)+' · '+esc(a.merek)+' '+esc(a.model)+'</div><div class="item-sub">'+esc(sub2)+'</div></div>'
           + '<span class="badge '+badgeCls+'">'+esc(stat)+'</span>'
           + '</div>';
@@ -917,8 +928,8 @@ function renderHome(){
   var t=document.getElementById('home-tersedia');
   if(t){
     var av=allAsetData.filter(function(a){return statKey(a)==='tersedia';}).slice(0,3);
-    t.innerHTML=av.length?av.map(function(a){var cb=isCB(a);
-      return '<div class="item-card" onclick="showDetailByKode(\''+esc(a.kode)+'\')"><div class="item-ico '+(cb?'ico-cb':'ico-pj')+'">'+emoAset(a.kode)+'</div><div class="item-info"><div class="item-name">'+esc(a.kode)+' · '+esc(a.merek)+' '+esc(a.model)+'</div><div class="item-sub">'+esc(a.lokasi||'-')+'</div></div><span class="badge badge-green">Tersedia</span></div>';}).join(''):'<div style="text-align:center;padding:20px;color:var(--gray3);font-size:13px">Tidak ada perangkat tersedia</div>';
+    t.innerHTML=av.length?av.map(function(a){var cb=isCB(a);var isi=a.foto?'<img src="'+esc(a.foto)+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':emoAset(a.kode);
+      return '<div class="item-card" onclick="showDetailByKode(\''+esc(a.kode)+'\')"><div class="item-ico '+(cb?'ico-cb':'ico-pj')+'" style="overflow:hidden">'+isi+'</div><div class="item-info"><div class="item-name">'+esc(a.kode)+' · '+esc(a.merek)+' '+esc(a.model)+'</div><div class="item-sub">'+esc(a.lokasi||'-')+'</div></div><span class="badge badge-green">Tersedia</span></div>';}).join(''):'<div style="text-align:center;padding:20px;color:var(--gray3);font-size:13px">Tidak ada perangkat tersedia</div>';
   }
 }
 
@@ -982,6 +993,10 @@ function showDetailByKode(kode,stay){
   set('d-merek',a.merek);set('d-model',a.model);set('d-seri',a.seri);set('d-tahun',a.tahun);
   set('d-kondisi',a.kondisi);set('d-status',a.status);set('d-lokasi',a.lokasi);
   set('d-lokasi-kini',a.lokasi_kini||a.lokasi);
+  var fotoEl=document.getElementById('d-foto'),fotoKosong=document.getElementById('d-foto-kosong');
+  if(a.foto){fotoEl.src=a.foto;fotoEl.style.display='block';fotoKosong.style.display='none';}
+  else{fotoEl.style.display='none';fotoEl.src='';fotoKosong.style.display='block';}
+  document.getElementById('btn-ubah-foto').style.display=canAddAset()?'block':'none';
   var loans=allAktif.filter(function(l){return l.kode===kode;});
   var k=statKey(a);
   var btn=document.getElementById('btn-pinjam-detail'),box=document.getElementById('d-aktif'),info=document.getElementById('d-info');
@@ -1317,6 +1332,62 @@ function submitUbahStatus(){
   }).catch(function(){document.getElementById('loading-overlay').classList.remove('show');alert('Gagal terhubung ke server.');});
 }
 
+// ── FOTO ASET ────────────────────────────────────────────
+// Mengecilkan & mengompres foto di HP sebelum dikirim, supaya hemat kuota dan cepat diunggah
+function prosesFoto(input, idPreview){
+  var file=input.files&&input.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var maxSisi=900;
+      var w=img.width,h=img.height;
+      if(w>h&&w>maxSisi){h=Math.round(h*maxSisi/w);w=maxSisi;}
+      else if(h>maxSisi){w=Math.round(w*maxSisi/h);h=maxSisi;}
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      var dataUrl=c.toDataURL('image/jpeg',0.72);
+      input.dataset.base64=dataUrl;
+      var prev=document.getElementById(idPreview);
+      if(prev){prev.src=dataUrl;prev.style.display='block';}
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function ubahFotoAset(input){
+  if(!currentKode)return;
+  var file=input.files&&input.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var maxSisi=900,w=img.width,h=img.height;
+      if(w>h&&w>maxSisi){h=Math.round(h*maxSisi/w);w=maxSisi;}
+      else if(h>maxSisi){w=Math.round(w*maxSisi/h);h=maxSisi;}
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      var dataUrl=c.toDataURL('image/jpeg',0.72);
+      document.getElementById('loading-overlay').classList.add('show');
+      fetch(API_URL,{method:'POST',body:JSON.stringify({action:'uploadFoto',kode:currentKode,fotoBase64:dataUrl,oleh:currentUser?currentUser.nama:''})})
+        .then(function(r){return r.json();}).then(function(d){
+          document.getElementById('loading-overlay').classList.remove('show');
+          if(d.status!=='OK'){alert('❌ '+(d.message||'Gagal menyimpan foto'));return;}
+          toast('✅ Foto berhasil diperbarui');
+          var a=allAsetData.filter(function(x){return x.kode===currentKode;})[0];
+          if(a)a.foto=d.foto;
+          document.getElementById('d-foto').src=d.foto;
+          document.getElementById('d-foto').style.display='block';
+          document.getElementById('d-foto-kosong').style.display='none';
+        }).catch(function(){document.getElementById('loading-overlay').classList.remove('show');alert('Gagal terhubung ke server.');});
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 // ── TAMBAH ASET (Admin & Pengurus Barang) ───────────────
 function canAddAset(){return currentUser&&ROLE_ACCESS[currentUser.role]&&ROLE_ACCESS[currentUser.role].tambahAset;}
 function prefixKode(k){return String(k).toUpperCase().split('-')[0];}
@@ -1343,6 +1414,8 @@ function openTambahAset(){
   var lokasi={};allAsetData.forEach(function(a){if(a.lokasi)lokasi[a.lokasi]=1;});
   document.getElementById('ta-lokasi-list').innerHTML=Object.keys(lokasi).map(function(l){return '<option value="'+esc(l)+'">';}).join('');
   document.getElementById('ta-lokasi').value='';
+  var fi=document.getElementById('ta-foto'); fi.value=''; delete fi.dataset.base64;
+  var fp=document.getElementById('ta-foto-preview'); fp.style.display='none'; fp.src='';
   taJenisChange();
   document.getElementById('aset-modal').style.display='flex';
 }
@@ -1351,7 +1424,8 @@ function submitTambahAset(){
   var v=document.getElementById('ta-jenis').value.split('|');
   var g=function(id){return document.getElementById(id).value.trim();};
   var nama=v[0]==='LN'?g('ta-nama'):v[1];
-  var d={action:'tambahAset',oleh:currentUser?currentUser.nama:'',kode:g('ta-kode').toUpperCase(),nama:nama,merek:g('ta-merek'),model:g('ta-model'),seri:g('ta-seri'),tahun:g('ta-tahun'),kondisi:document.getElementById('ta-kondisi').value,lokasi:g('ta-lokasi'),ket:g('ta-ket')};
+  var fotoInput=document.getElementById('ta-foto');
+  var d={action:'tambahAset',oleh:currentUser?currentUser.nama:'',kode:g('ta-kode').toUpperCase(),nama:nama,merek:g('ta-merek'),model:g('ta-model'),seri:g('ta-seri'),tahun:g('ta-tahun'),kondisi:document.getElementById('ta-kondisi').value,lokasi:g('ta-lokasi'),ket:g('ta-ket'),fotoBase64:fotoInput.dataset.base64||''};
   if(!d.kode||!d.nama||!d.merek||!d.lokasi){alert('Kode, jenis/nama, merek, dan lokasi simpan wajib diisi');return;}
   if(!/^[A-Z]{2,4}-\d{1,3}$/.test(d.kode)){alert('Format kode harus seperti CB-11 (huruf, tanda -, angka)');return;}
   document.getElementById('loading-overlay').classList.add('show');
