@@ -890,10 +890,11 @@ function loadHome(){
 }
 
 function waktuPinjamDate(l){
-  var m=(l.tgl||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  // tglIso dikirim server dalam bentuk baku (yyyy-MM-dd) apa pun format tampilan di sheet
+  var m=(l.tglIso||l.tgl||'').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if(!m)return null;
   var d=new Date(+m[1],+m[2]-1,+m[3]);
-  var j=(l.jam||'').match(/^(\d{1,2}):(\d{2})/);
+  var j=(l.jam||'').match(/^(\d{1,2})[:.](\d{2})/);
   if(j)d.setHours(+j[1],+j[2],0,0);
   return d;
 }
