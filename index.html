@@ -314,6 +314,7 @@ setTimeout(hideSplash,1700);
       <button class="scan-btn" onclick="startScan()" id="btn-scan">▣ &nbsp;Tap untuk Scan QR Code</button>
       <div id="qr-reader" class="hidden" style="margin-top:12px">
         <div class="qr-container"><video id="qr-video" playsinline autoplay muted></video><div class="qr-overlay"><div class="qr-frame"></div></div></div>
+        <div id="qr-status" style="text-align:center;font-size:11px;color:var(--gray3);margin-top:6px;min-height:15px"></div>
         <button onclick="stopScan()" style="width:100%;margin-top:10px;padding:10px;background:var(--r4);color:var(--r2);border:1px solid #E24B4A;border-radius:var(--rad-sm);font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer">✕ Batalkan Scan</button>
       </div>
       <div style="text-align:center;font-size:11px;color:var(--gray3);margin:10px 0">atau ketik kode secara manual</div>
@@ -1064,31 +1065,65 @@ function checkManual(val){
   if(val.length>=4&&allAsetData.some(function(x){return x.kode===val;}))showAsetResult(val);
 }
 
+var scanFrames=0;
+function setQrStatus(t){var e=document.getElementById('qr-status');if(e)e.textContent=t;}
+function ambilKodeDariQR(teks){
+  var k=String(teks||'').toUpperCase().trim();
+  var m=k.match(/[A-Z]{2,4}-\d{1,3}/);   // tahan terhadap QR berisi URL / teks tambahan
+  return m?m[0]:k;
+}
+function hasilScan(teks){
+  var k=ambilKodeDariQR(teks);
+  stopScan();
+  if(!showAsetResult(k)){document.getElementById('btn-scan').classList.remove('hidden');}
+}
 function startScan(){
-  if(typeof jsQR==='undefined'){alert('Pemindai QR gagal dimuat (periksa koneksi internet). Silakan ketik kode aset secara manual.');return;}
+  var punyaDetektor=('BarcodeDetector' in window);
+  if(!punyaDetektor&&typeof jsQR==='undefined'){alert('Pemindai QR gagal dimuat (periksa koneksi internet). Silakan ketik kode aset secara manual.');return;}
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){alert('Browser tidak mendukung kamera. Ketik kode manual.');return;}
   document.getElementById('btn-scan').classList.add('hidden');
   document.getElementById('qr-reader').classList.remove('hidden');
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
+  scanFrames=0;setQrStatus('Membuka kamera…');
+  var detektor=null;
+  if(punyaDetektor){try{detektor=new BarcodeDetector({formats:['qr_code']});}catch(e){detektor=null;}}
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false})
   .then(function(stream){
     videoStream=stream;
-    var v=document.getElementById('qr-video');v.srcObject=stream;v.play();
-    scanInterval=setInterval(function(){
-      if(!v.readyState||v.readyState<2)return;
-      try{
-        var c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;
-        var ctx=c.getContext('2d');ctx.drawImage(v,0,0);
-        var id=ctx.getImageData(0,0,c.width,c.height);
-        var code=jsQR(id.data,id.width,id.height);
-        if(code){var k=code.data.toUpperCase().trim();stopScan();if(!showAsetResult(k)){document.getElementById('btn-scan').classList.remove('hidden');}}
-      }catch(e){}
-    },300);
+    try{var tr=stream.getVideoTracks()[0],cp=tr.getCapabilities&&tr.getCapabilities();
+      if(cp&&cp.focusMode&&cp.focusMode.indexOf('continuous')>=0)tr.applyConstraints({advanced:[{focusMode:'continuous'}]});}catch(e){}
+    var v=document.getElementById('qr-video');v.srcObject=stream;
+    var pl=v.play();if(pl&&pl.catch)pl.catch(function(){});
+    var cnv=document.createElement('canvas'),ctx=cnv.getContext('2d',{willReadFrequently:true});
+    var langkah=function(){if(videoStream)scanInterval=setTimeout(proses,250);};
+    var proses=function(){
+      if(!videoStream)return;
+      if(v.readyState<2||!v.videoWidth){langkah();return;}
+      scanFrames++;
+      var w=v.videoWidth,hh=v.videoHeight,siap;
+      if(detektor){
+        siap=detektor.detect(v).then(function(r){return r&&r.length?r[0].rawValue:null;}).catch(function(){detektor=null;return null;});
+      }else{
+        try{
+          var sk=Math.min(1,960/w);cnv.width=Math.round(w*sk);cnv.height=Math.round(hh*sk);
+          ctx.drawImage(v,0,0,cnv.width,cnv.height);
+          var id=ctx.getImageData(0,0,cnv.width,cnv.height),c=jsQR(id.data,id.width,id.height);
+          siap=Promise.resolve(c?c.data:null);
+        }catch(e){setQrStatus('Pemindai error: '+e.message);siap=Promise.resolve(null);}
+      }
+      siap.then(function(teks){
+        if(!videoStream)return;
+        if(teks){hasilScan(teks);return;}
+        setQrStatus('Memindai… '+w+'×'+hh+' · '+(detektor?'detektor bawaan':'jsQR')+' · '+scanFrames+' frame. Jarak ±15–25 cm, pastikan fokus & tidak silau.');
+        langkah();
+      });
+    };
+    langkah();
   })
   .catch(function(err){alert('Tidak bisa akses kamera: '+err.message);stopScan();});
 }
 
 function stopScan(){
-  if(scanInterval){clearInterval(scanInterval);scanInterval=null;}
+  if(scanInterval){clearTimeout(scanInterval);clearInterval(scanInterval);scanInterval=null;}
   if(videoStream){videoStream.getTracks().forEach(t=>t.stop());videoStream=null;}
   document.getElementById('qr-reader').classList.add('hidden');
   document.getElementById('btn-scan').classList.remove('hidden');
