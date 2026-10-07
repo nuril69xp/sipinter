@@ -187,7 +187,7 @@ setTimeout(hideSplash,1700);
         </div>
         <div id="login-error" style="display:none;background:#FCEBEB;border:1px solid #F09595;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#A32D2D;text-align:center"></div>
         <button type="button" id="btn-masuk" onclick="doLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0F6E56,#1D9E75);color:white;border:none;border-radius:8px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px">Masuk →</button>
-        <div style="text-align:center;margin-top:14px;font-size:11px;color:#888780">Lupa username/password? Hubungi Admin</div>
+        <div style="text-align:center;margin-top:14px;font-size:11px;color:#888780">Lupa password atau masih memakai password awal? <a href="#" onclick="switchScreen('gantipass',99);return false" style="color:#185FA5;font-weight:700">Ganti Password via OTP</a><br>Lupa username? Hubungi Admin</div>
       </div>
       <div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(255,255,255,0.5)">© 2026 SMP Negeri 8 Tanjungpinang</div>
     </div>
@@ -507,7 +507,7 @@ setTimeout(hideSplash,1700);
   <div style="min-height:100vh;background:linear-gradient(135deg,#0F6E56 0%,#1D9E75 60%,#5DCAA5 100%);padding:48px 20px 32px;position:relative;overflow:hidden">
     <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.07);border-radius:50%"></div>
     <div style="position:relative;z-index:1;max-width:360px;margin:0 auto">
-      <div onclick="switchScreen('about',6)" style="font-size:20px;color:white;margin-bottom:20px;cursor:pointer">← Kembali</div>
+      <div onclick="keluarGantiPass()" style="font-size:20px;color:white;margin-bottom:20px;cursor:pointer">← Kembali</div>
       <div style="font-size:20px;font-weight:700;color:white;margin-bottom:4px">🔐 Ganti Password</div>
       <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:24px">Kode OTP akan dikirim ke email Anda</div>
       
@@ -647,6 +647,38 @@ setTimeout(hideSplash,1700);
 </div>
 <script>
 var API_URL='https://script.google.com/macros/s/AKfycbwnmPN4IMAM07wOj47OWhzRq6BQ3jOZFn4xdqx-Bm9C6HggpqGYioZj3XVfsU299JXEpQ/exec';
+function tokenSesi(){return (currentUser&&currentUser.token)||'';}
+function apiFetch(url,opts){
+  var t=tokenSesi();
+  if(t){
+    if(opts&&opts.method==='POST'&&typeof opts.body==='string'){
+      try{var b=JSON.parse(opts.body);if(!b.token){b.token=t;opts=Object.assign({},opts,{body:JSON.stringify(b)});}}catch(e){}
+    }else if(!opts||!opts.method||opts.method==='GET'){
+      if(url.indexOf('token=')<0)url+=(url.indexOf('?')<0?'?':'&')+'token='+encodeURIComponent(t);
+    }
+  }
+  return fetch(url,opts).then(function(res){
+    res.clone().json().then(function(d){if(d&&d.status==='SESI_HABIS')sesiHabis(d.message);}).catch(function(){});
+    return res;
+  });
+}
+function sesiHabis(msg){
+  if(!currentUser)return;
+  alert('🔒 '+(msg||'Sesi berakhir. Silakan login ulang.'));
+  doLogout();
+}
+function setPeminjamDefault(){
+  var sel=document.getElementById('f-guru');if(!sel||!currentUser)return;
+  sel.value='';
+  for(var i=0;i<sel.options.length;i++){if(normNama(sel.options[i].text)===normNama(currentUser.nama)){sel.selectedIndex=i;break;}}
+  sel.disabled=!(currentUser.role==='admin'||currentUser.role==='pengurus'); // hanya Admin/Pengurus yang boleh atas nama orang lain
+}
+function keluarGantiPass(){
+  if(currentUser){switchScreen('about',6);return;}
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('sc-login').classList.add('active');window.scrollTo(0,0);
+}
+
 var asetDB={
   'CB-01':{nama:'Acer Chromebook 311',kondisi:'Baik',status:'Tersedia'},
   'CB-02':{nama:'Acer Chromebook 311',kondisi:'Baik',status:'Tersedia'},
@@ -730,7 +762,7 @@ function doLogin(){
   err.style.display='none';
   if(!uname||!pass){err.style.display='block';err.textContent='❌ Username dan password wajib diisi';return;}
   if(btn){btn.textContent='Memeriksa...';btn.disabled=true;}
-  fetch(API_URL,{method:'POST',body:JSON.stringify({action:'login',username:uname,password:pass})})
+  apiFetch(API_URL,{method:'POST',body:JSON.stringify({action:'login',username:uname,password:pass})})
   .then(function(res){return res.json();})
   .then(function(data){
     if(btn){btn.textContent='Masuk →';btn.disabled=false;}
@@ -739,11 +771,12 @@ function doLogin(){
       err.textContent='❌ '+(data.message||'Username atau password salah');
       return;
     }
-    currentUser={username:uname,nama:data.nama,role:data.role,inisial:data.inisial||uname.substring(0,2).toUpperCase()};
+    currentUser={username:uname,nama:data.nama,role:data.role,token:data.token,inisial:data.inisial||uname.substring(0,2).toUpperCase()};
     try{localStorage.setItem('sipinter_session',JSON.stringify({user:currentUser,waktu:Date.now()}));}catch(e){}
     applyUser(currentUser);
     applyAccess(currentUser.role);
     switchScreen('home',0);
+    if(data.wajibGanti){alert('🔐 Anda masih memakai password awal. Demi keamanan, silakan ganti sekarang lewat OTP ke email.');switchScreen('gantipass',99);document.getElementById('gp-username').value=uname;}
   })
   .catch(function(){
     if(btn){btn.textContent='Masuk →';btn.disabled=false;}
@@ -761,7 +794,7 @@ function applyUser(u){
   el=document.getElementById('display-jabatan');if(el)el.textContent=u.inisial+' · '+ROLE_LABEL[u.role];
   el=document.getElementById('display-role');if(el)el.textContent=ROLE_LABEL[u.role];
   var sel=document.getElementById('f-guru');
-  if(sel){for(var i=0;i<sel.options.length;i++){if(sel.options[i].text===u.nama||sel.options[i].value===u.nama){sel.selectedIndex=i;break;}}}
+  setPeminjamDefault();
 }
 
 function applyAccess(role){
@@ -809,7 +842,7 @@ function loadAset(){
   document.getElementById('aset-loading').style.display='block';
   document.getElementById('aset-error').style.display='none';
   document.getElementById('aset-list').style.display='none';
-  fetch(API_URL+'?action=aset')
+  apiFetch(API_URL+'?action=aset')
   .then(function(res){return res.json();})
   .then(function(data){
     document.getElementById('aset-loading').style.display='none';
@@ -863,7 +896,7 @@ function renderAset(data){
     var loans = allAktif.filter(function(l){return l.kode===a.kode;});
     var sub2 = loans.length ? (loans.length>1 ? loans.length+' peminjaman aktif' : loans[0].guru+' · '+loans[0].kelas) : (a.ket ? a.ket : (a.lokasi||'-'));
     var icoIsi = a.foto ? '<img src="'+esc(a.foto)+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">' : emo;
-    html += '<div class="item-card" onclick="showDetailByKode(\''+esc(a.kode)+'\')">'
+    html += '<div class="item-card" onclick="showDetailByKode('+jsArg(a.kode)+')">'
           + '<div class="item-ico '+ico+'" style="overflow:hidden">'+icoIsi+'</div>'
           + '<div class="item-info"><div class="item-name">'+esc(a.kode)+' · '+esc(a.merek)+' '+esc(a.model)+'</div><div class="item-sub">'+esc(sub2)+'</div></div>'
           + '<span class="badge '+badgeCls+'">'+esc(stat)+'</span>'
@@ -876,7 +909,7 @@ function renderAset(data){
 
 // ── DASHBOARD DINAMIS ───────────────────────────────────
 function loadHome(){
-  fetch(API_URL+'?action=aset').then(function(r){return r.json();}).then(function(d){
+  apiFetch(API_URL+'?action=aset').then(function(r){return r.json();}).then(function(d){
     if(d.status==='OK'&&d.data){
       allAsetData=d.data;allAktif=d.aktif||[];
       allAktif.forEach(function(l){loanIndex[l.id]=l;});
@@ -909,7 +942,7 @@ function loanCard(l,withImg){
   var cb=String(l.kode).toUpperCase().indexOf('CB')===0;
   var late=isTerlambat(l);
   var right=canReturn(l)
-    ? '<button onclick="event.stopPropagation();openKembali(\''+esc(l.id)+'\')" style="background:var(--g2);color:white;border:none;border-radius:99px;padding:7px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">↩ Kembalikan</button>'
+    ? '<button onclick="event.stopPropagation();openKembali('+jsArg(l.id)+')" style="background:var(--g2);color:white;border:none;border-radius:99px;padding:7px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">↩ Kembalikan</button>'
     : '<span class="badge '+(late?'badge-red':'badge-amber')+'">'+(late?'Terlambat!':'Dipinjam')+'</span>';
   return '<div class="item-card"><div class="item-ico '+(cb?'ico-cb':'ico-pj')+'">'+emoAset(l.kode)+'</div>'
     +'<div class="item-info"><div class="item-name">'+esc(l.kode)+' · '+esc((a.merek||'')+' '+(a.model||''))+'</div>'
@@ -930,7 +963,7 @@ function renderHome(){
   if(t){
     var av=allAsetData.filter(function(a){return statKey(a)==='tersedia';}).slice(0,3);
     t.innerHTML=av.length?av.map(function(a){var cb=isCB(a);var isi=a.foto?'<img src="'+esc(a.foto)+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':emoAset(a.kode);
-      return '<div class="item-card" onclick="showDetailByKode(\''+esc(a.kode)+'\')"><div class="item-ico '+(cb?'ico-cb':'ico-pj')+'" style="overflow:hidden">'+isi+'</div><div class="item-info"><div class="item-name">'+esc(a.kode)+' · '+esc(a.merek)+' '+esc(a.model)+'</div><div class="item-sub">'+esc(a.lokasi||'-')+'</div></div><span class="badge badge-green">Tersedia</span></div>';}).join(''):'<div style="text-align:center;padding:20px;color:var(--gray3);font-size:13px">Tidak ada perangkat tersedia</div>';
+      return '<div class="item-card" onclick="showDetailByKode('+jsArg(a.kode)+')"><div class="item-ico '+(cb?'ico-cb':'ico-pj')+'" style="overflow:hidden">'+isi+'</div><div class="item-info"><div class="item-name">'+esc(a.kode)+' · '+esc(a.merek)+' '+esc(a.model)+'</div><div class="item-sub">'+esc(a.lokasi||'-')+'</div></div><span class="badge badge-green">Tersedia</span></div>';}).join(''):'<div style="text-align:center;padding:20px;color:var(--gray3);font-size:13px">Tidak ada perangkat tersedia</div>';
   }
 }
 
@@ -956,7 +989,7 @@ function submitKembali(){
   var id=kembaliId;
   var payload={action:'kembali',id_pinjam:id,kondisi:document.getElementById('kb-kondisi').value,ket:document.getElementById('kb-ket').value.trim(),oleh:currentUser?currentUser.nama:''};
   document.getElementById('loading-overlay').classList.add('show');
-  fetch(API_URL,{method:'POST',body:JSON.stringify(payload)})
+  apiFetch(API_URL,{method:'POST',body:JSON.stringify(payload)})
   .then(function(r){return r.json();})
   .then(function(d){
     document.getElementById('loading-overlay').classList.remove('show');
@@ -972,7 +1005,7 @@ function submitKembali(){
 }
 function refreshAll(){
   var cur=document.querySelector('.screen.active');var id=cur?cur.id:'';
-  fetch(API_URL+'?action=aset').then(function(r){return r.json();}).then(function(d){
+  apiFetch(API_URL+'?action=aset').then(function(r){return r.json();}).then(function(d){
     if(d.status==='OK'&&d.data){
       allAsetData=d.data;allAktif=d.aktif||[];
       allAktif.forEach(function(l){loanIndex[l.id]=l;});
@@ -1086,7 +1119,7 @@ function submitPinjam(){
   var id=generateId();
   var payload={id_pinjam:id,kode_aset:kode,nama_guru:guru,kelas:kelas,tgl_pinjam:tgl,jam_pinjam:jam};
   document.getElementById('loading-overlay').classList.add('show');
-  fetch(API_URL,{method:'POST',body:JSON.stringify(payload)})
+  apiFetch(API_URL,{method:'POST',body:JSON.stringify(payload)})
   .then(function(res){return res.json();})
   .then(function(data){
     if(data.status==='OK'){selesaiSimpan(kode,guru,kelas,tgl,jam);loadHome();}
@@ -1108,7 +1141,7 @@ function resetForm(){
   document.getElementById('scan-result').classList.add('hidden');
   document.getElementById('form-isian').style.display='none';
   document.getElementById('btn-ambil').style.display='none';
-  document.getElementById('f-guru').value='';
+  setPeminjamDefault();
   document.getElementById('f-kelas').value='';
   document.getElementById('f-kelas-lain').value='';
   document.getElementById('f-kelas-lain').style.display='none';
@@ -1134,7 +1167,7 @@ function loadRiwayat() {
   document.getElementById('btn-export-riwayat').style.display=bisaLihatSemua?'inline-block':'none';
   riwayatMode=bisaLihatSemua?'semua':'saya';
 
-  fetch(API_URL + '?action=riwayat')
+  apiFetch(API_URL + '?action=riwayat')
   .then(function(res){return res.json();})
   .then(function(data){
     document.getElementById('riwayat-loading').style.display='none';
@@ -1174,8 +1207,8 @@ function tampilkanRiwayat(){
           +'<div class="riwayat-title"><strong>'+esc(r.kode)+'</strong> · '+esc(r.kelas)+'</div>'
           +'<div class="riwayat-sub">'+esc(r.guru)+' · '+esc(tgl)+' '+esc(jam)+(r.tgl_kembali?' → kembali '+esc(r.tgl_kembali)+' '+esc(r.jam_kembali)+(r.kondisi?' ('+esc(r.kondisi)+')':''):'')+'</div>'
         +'</div>'
-        +(status==='Dipinjam'&&canReturn(r)?'<button onclick="openKembali(\''+esc(r.id)+'\')" style="background:var(--g2);color:white;border:none;border-radius:99px;padding:6px 10px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;margin-right:6px">↩ Kembalikan</button>':'')
-        +'<span style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;white-space:nowrap;'+badgeStyle+'">'+status+'</span>'
+        +(status==='Dipinjam'&&canReturn(r)?'<button onclick="openKembali('+jsArg(r.id)+')" style="background:var(--g2);color:white;border:none;border-radius:99px;padding:6px 10px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;margin-right:6px">↩ Kembalikan</button>':'')
+        +'<span style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;white-space:nowrap;'+badgeStyle+'">'+esc(status)+'</span>'
       +'</div>';
     });
     document.getElementById('riwayat-list').innerHTML=html;
@@ -1213,7 +1246,7 @@ function muatLaporan(){
   document.getElementById('lap-status').textContent='⏳ Memuat laporan...';
   document.getElementById('lap-isi').style.display='none';
   document.getElementById('btn-kirim-laporan').style.display='none';
-  fetch(API_URL,{method:'POST',body:JSON.stringify({action:'laporanBulanan',bulan:bulan,tahun:tahun,oleh:currentUser?currentUser.nama:''})})
+  apiFetch(API_URL,{method:'POST',body:JSON.stringify({action:'laporanBulanan',bulan:bulan,tahun:tahun,oleh:currentUser?currentUser.nama:''})})
     .then(function(r){return r.json();}).then(function(d){
       if(d.status!=='OK'){document.getElementById('lap-status').textContent='⚠️ '+(d.message||'Gagal memuat laporan');return;}
       document.getElementById('lap-status').style.display='none';
@@ -1226,7 +1259,7 @@ function muatLaporan(){
 function kirimLaporanEmail(){
   var bulan=document.getElementById('lap-bulan').value,tahun=document.getElementById('lap-tahun').value;
   document.getElementById('loading-overlay').classList.add('show');
-  fetch(API_URL,{method:'POST',body:JSON.stringify({action:'kirimLaporanEmail',bulan:bulan,tahun:tahun,oleh:currentUser?currentUser.nama:''})})
+  apiFetch(API_URL,{method:'POST',body:JSON.stringify({action:'kirimLaporanEmail',bulan:bulan,tahun:tahun,oleh:currentUser?currentUser.nama:''})})
     .then(function(r){return r.json();}).then(function(d){
       document.getElementById('loading-overlay').classList.remove('show');
       if(d.status!=='OK'){alert('❌ '+(d.message||'Gagal mengirim email'));return;}
@@ -1281,7 +1314,7 @@ function muatLog(){
   document.getElementById('log-status').style.display='block';
   document.getElementById('log-status').textContent='⏳ Memuat log...';
   document.getElementById('log-list').style.display='none';
-  fetch(API_URL,{method:'POST',body:JSON.stringify({action:'logAktivitas',oleh:currentUser?currentUser.nama:''})})
+  apiFetch(API_URL,{method:'POST',body:JSON.stringify({action:'logAktivitas',oleh:currentUser?currentUser.nama:''})})
     .then(function(r){return r.json();}).then(function(d){
       if(d.status!=='OK'){document.getElementById('log-status').textContent='⚠️ '+(d.message||'Gagal memuat log');return;}
       if(!d.data||!d.data.length){document.getElementById('log-status').textContent='📭 Belum ada aktivitas tercatat';return;}
@@ -1303,7 +1336,7 @@ function muatLog(){
 function backupSekarang(){
   if(!confirm('Buat salinan backup database sekarang?'))return;
   document.getElementById('loading-overlay').classList.add('show');
-  fetch(API_URL,{method:'POST',body:JSON.stringify({action:'backupSekarang',oleh:currentUser?currentUser.nama:''})})
+  apiFetch(API_URL,{method:'POST',body:JSON.stringify({action:'backupSekarang',oleh:currentUser?currentUser.nama:''})})
     .then(function(r){return r.json();}).then(function(d){
       document.getElementById('loading-overlay').classList.remove('show');
       if(d.status!=='OK'){alert('❌ '+(d.message||'Gagal membuat backup'));return;}
@@ -1326,7 +1359,7 @@ function submitUbahStatus(){
   if(!usId)return;
   var payload={action:'ubahStatusPerbaikan',id_log:usId,status:document.getElementById('us-status').value,oleh:currentUser?currentUser.nama:''};
   document.getElementById('loading-overlay').classList.add('show');
-  fetch(API_URL,{method:'POST',body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(d){
+  apiFetch(API_URL,{method:'POST',body:JSON.stringify(payload)}).then(function(r){return r.json();}).then(function(d){
     document.getElementById('loading-overlay').classList.remove('show');
     if(d.status!=='OK'){alert('❌ '+(d.message||'Gagal menyimpan'));return;}
     closeUbahStatus();toast('✅ Status diperbarui');loadNotif();loadHome();
@@ -1372,7 +1405,7 @@ function ubahFotoAset(input){
       c.getContext('2d').drawImage(img,0,0,w,h);
       var dataUrl=c.toDataURL('image/jpeg',0.72);
       document.getElementById('loading-overlay').classList.add('show');
-      fetch(API_URL,{method:'POST',body:JSON.stringify({action:'uploadFoto',kode:currentKode,fotoBase64:dataUrl,oleh:currentUser?currentUser.nama:''})})
+      apiFetch(API_URL,{method:'POST',body:JSON.stringify({action:'uploadFoto',kode:currentKode,fotoBase64:dataUrl,oleh:currentUser?currentUser.nama:''})})
         .then(function(r){return r.json();}).then(function(d){
           document.getElementById('loading-overlay').classList.remove('show');
           if(d.status!=='OK'){alert('❌ '+(d.message||'Gagal menyimpan foto'));return;}
@@ -1430,7 +1463,7 @@ function submitTambahAset(){
   if(!d.kode||!d.nama||!d.merek||!d.lokasi){alert('Kode, jenis/nama, merek, dan lokasi simpan wajib diisi');return;}
   if(!/^[A-Z]{2,4}-\d{1,3}$/.test(d.kode)){alert('Format kode harus seperti CB-11 (huruf, tanda -, angka)');return;}
   document.getElementById('loading-overlay').classList.add('show');
-  fetch(API_URL,{method:'POST',body:JSON.stringify(d)}).then(function(r){return r.json();}).then(function(r){
+  apiFetch(API_URL,{method:'POST',body:JSON.stringify(d)}).then(function(r){return r.json();}).then(function(r){
     document.getElementById('loading-overlay').classList.remove('show');
     if(r.status!=='OK'){alert('❌ '+(r.message||'Gagal menyimpan aset'));return;}
     closeTambahAset();toast('✅ Aset '+d.kode+' berhasil ditambahkan');loadAset();loadHome();
@@ -1438,15 +1471,16 @@ function submitTambahAset(){
 }
 
 // ── NOTIFIKASI REAL-TIME (kondisi_log + belum dikembalikan) ──
-function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function jsArg(v){return esc(JSON.stringify(String(v==null?'':v)));}
 function samaOrang(a,b){var n=function(x){return String(x||'').toLowerCase().replace(/[^a-z0-9]/g,'');};return n(a)===n(b);}
 function loadNotif(){
   var ld=document.getElementById('notif-loading'),ls=document.getElementById('notif-list');
   ld.style.display='block';ls.style.display='none';
-  var get=function(a){return fetch(API_URL+'?action='+a).then(function(r){return r.json();}).then(function(d){return d.status==='OK'&&d.data?d.data:[];}).catch(function(){return null;});};
+  var get=function(a){return apiFetch(API_URL+'?action='+a).then(function(r){return r.json();}).then(function(d){return d.status==='OK'&&d.data?d.data:[];}).catch(function(){return null;});};
   var getTerlambat=function(){
     if(!canAddAset())return Promise.resolve([]);
-    return fetch(API_URL,{method:'POST',body:JSON.stringify({action:'daftarTerlambat',oleh:currentUser?currentUser.nama:''})})
+    return apiFetch(API_URL,{method:'POST',body:JSON.stringify({action:'daftarTerlambat',oleh:currentUser?currentUser.nama:''})})
       .then(function(r){return r.json();}).then(function(d){return d.status==='OK'&&d.data?d.data:[];}).catch(function(){return [];});
   };
   Promise.all([get('kondisi'),get('riwayat'),getTerlambat()]).then(function(res){
@@ -1478,7 +1512,7 @@ function loadNotif(){
       var selesai=k.status==='Selesai';
       var ico=selesai?'✅':(k.status==='Menunggu Sparepart'?'⚠️':'🔧');
       var bg=selesai?'var(--g4)':(k.status==='Menunggu Sparepart'?'var(--r4)':'var(--a4)');
-      var ubah=(canAddAset()&&!selesai)?'<button onclick="event.stopPropagation();openUbahStatus(\''+esc(k.id)+'\',\''+esc(k.kode)+'\',\''+esc(k.status)+'\')" style="margin-top:8px;background:var(--g2);color:white;border:none;border-radius:99px;padding:6px 12px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer">🔧 Ubah Status</button>':'';
+      var ubah=(canAddAset()&&!selesai)?'<button onclick="event.stopPropagation();openUbahStatus('+jsArg(k.id)+','+jsArg(k.kode)+','+jsArg(k.status)+')" style="margin-top:8px;background:var(--g2);color:white;border:none;border-radius:99px;padding:6px 12px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer">🔧 Ubah Status</button>':'';
       html+='<div class="notif-item"><div class="notif-ico-wrap" style="background:'+bg+'">'+ico+'</div><div style="flex:1"><div class="notif-text"><strong>'+esc(k.kode)+' · '+esc(k.kondisi)+'</strong> — '+esc(k.deskripsi)+'<br>Dilaporkan '+esc(k.pelapor)+'</div><div class="notif-time">'+esc(k.tgl)+' · '+esc(k.status)+(selesai&&k.tgl_selesai?' ('+esc(k.tgl_selesai)+')':'')+'</div>'+ubah+'</div></div>';
     });
     if(!html)html='<div style="text-align:center;padding:32px;color:var(--gray3)"><div style="font-size:32px;margin-bottom:12px">🔔</div><div style="font-size:13px">Belum ada notifikasi</div></div>';
@@ -1498,7 +1532,7 @@ function kirimOTP() {
   btn.textContent='Mengirim...';
   btn.disabled=true;
   
-  fetch(API_URL+'?action=kirimOTP&username='+encodeURIComponent(uname))
+  apiFetch(API_URL+'?action=kirimOTP&username='+encodeURIComponent(uname))
   .then(function(res){return res.json();})
   .then(function(data){
     btn.textContent='Kirim Kode OTP ke Email →';
@@ -1532,7 +1566,7 @@ function verifikasiOTP() {
   if(!newpass||newpass.length<6){err.style.display='block';err.textContent='❌ Password baru minimal 6 karakter';return;}
   if(newpass!==konfirm){err.style.display='block';err.textContent='❌ Konfirmasi password tidak cocok';return;}
   
-  fetch(API_URL,{
+  apiFetch(API_URL,{
     method:'POST',
     body:JSON.stringify({action:'verifikasiOTP',username:uname,otp:otp,newPassword:newpass})
   })
@@ -1568,7 +1602,7 @@ function resetGantiPass(){
 
 // ── Init
 var now=new Date();
-document.getElementById('f-tgl').value=now.toISOString().split('T')[0];
+document.getElementById('f-tgl').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
 document.getElementById('f-jam').value=now.toTimeString().slice(0,5);
 
 function lanjutkanInit(){
@@ -1581,7 +1615,7 @@ function lanjutkanInit(){
     var saved=localStorage.getItem('sipinter_session');
     var sesi=saved?JSON.parse(saved):null;
     var BATAS_SESI=24*60*60*1000; // sesi bertahan 24 jam sejak login, lalu diminta login ulang
-    if(sesi&&sesi.user&&sesi.waktu&&(Date.now()-sesi.waktu)<BATAS_SESI){
+    if(sesi&&sesi.user&&sesi.user.token&&sesi.waktu&&(Date.now()-sesi.waktu)<BATAS_SESI){
       currentUser=sesi.user;
       applyUser(currentUser);
       applyAccess(currentUser.role);
@@ -1599,7 +1633,7 @@ function lanjutkanInit(){
 }
 var maintPollTimer=null;
 function cekMaintenance(manual){
-  fetch(API_URL+'?action=status').then(function(r){return r.json();}).then(function(d){
+  apiFetch(API_URL+'?action=status').then(function(r){return r.json();}).then(function(d){
     if(d.maintenance){
       document.getElementById('maint-msg').textContent=d.pesan||'Aplikasi sedang dalam pemeliharaan. Silakan coba lagi beberapa saat lagi.';
       document.getElementById('maint-screen').style.display='flex';
