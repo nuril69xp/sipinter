@@ -12,7 +12,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>Si-PINTER SEKOLAH</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" integrity="sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx" crossorigin="anonymous"></script>
+<script>window.jsQR||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js" integrity="sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx" crossorigin="anonymous"><\/script>');</script>
 <style>
 :root{--g1:#0F6E56;--g2:#1D9E75;--g3:#5DCAA5;--g4:#E1F5EE;--b2:#185FA5;--b4:#E6F1FB;--a1:#633806;--a2:#BA7517;--a4:#FAEEDA;--r2:#A32D2D;--r4:#FCEBEB;--gray1:#1A1A1A;--gray2:#444441;--gray3:#888780;--gray4:#D3D1C7;--gray5:#F1EFE8;--font:'Plus Jakarta Sans',sans-serif;--mono:'Space Mono',monospace;--rad:14px;--rad-sm:8px;--shadow:0 2px 12px rgba(0,0,0,0.08)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -137,7 +138,8 @@ body{font-family:var(--font);background:#F0F4F2;color:var(--gray1);min-height:10
 @keyframes spIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
 @keyframes spDot{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1.15)}}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
+<script>window.XLSX||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"><\/script>');</script>
 </head>
 <body>
 <div id="splash" onclick="hideSplash()"><div class="logo-sp" role="img" aria-label="Si-PINTER"></div><div class="dots"><i></i><i></i><i></i></div></div>
@@ -673,6 +675,15 @@ function setPeminjamDefault(){
   for(var i=0;i<sel.options.length;i++){if(normNama(sel.options[i].text)===normNama(currentUser.nama)){sel.selectedIndex=i;break;}}
   sel.disabled=!(currentUser.role==='admin'||currentUser.role==='pengurus'); // hanya Admin/Pengurus yang boleh atas nama orang lain
 }
+function muatDaftarGuru(){
+  if(!currentUser)return;
+  apiFetch(API_URL+'?action=pengguna').then(function(r){return r.json();}).then(function(d){
+    if(d.status!=='OK'||!d.data||!d.data.length)return;
+    var sel=document.getElementById('f-guru');if(!sel)return;
+    sel.innerHTML='<option value="">-- Pilih Nama --</option>'+d.data.map(function(n){return '<option>'+esc(n)+'</option>';}).join('');
+    setPeminjamDefault();
+  }).catch(function(){});
+}
 function keluarGantiPass(){
   if(currentUser){switchScreen('about',6);return;}
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
@@ -695,27 +706,6 @@ var asetDB={
   'PJ-03':{nama:'BenQ MX550',kondisi:'Baik',status:'Tersedia'},
   'PJ-04':{nama:'BenQ MX550',kondisi:'Perlu Perbaikan',status:'Tidak Tersedia'},
   'PJ-05':{nama:'Optoma S334e',kondisi:'Baik',status:'Tersedia'}
-};
-var USERS={
-  'faizah':    {nama:'Noor Faizah, S.Pd.',             role:'kepsek',inisial:'NF'},
-  'delfi':     {nama:'Delfi Yulianti, S.Pd.',           role:'guru',  inisial:'DY'},
-  'nuril':     {nama:'Nuril Ilmi, S.Kom.',              role:'admin', inisial:'NI'},
-  'tri':       {nama:'Tri Utami, S.Pd.',                role:'guru',  inisial:'TU'},
-  'dimas':     {nama:'Dimas Fradinata, S.Pd.',          role:'guru',  inisial:'DF'},
-  'jepri':     {nama:'Jepri Riswanto, S.Pd.',           role:'guru',  inisial:'JR'},
-  'fika':      {nama:'Fika Risvita, S.Pd.',             role:'guru',  inisial:'FR'},
-  'eva':       {nama:'Eva Octavia Ambarita, S.Pd.',     role:'guru',  inisial:'EA'},
-  'riri':      {nama:'Sri Wahyuni, S.Pd.',              role:'guru',  inisial:'SW'},
-  'yani':      {nama:'Sri Mulyani, S.Pd.I.',            role:'guru',  inisial:'SM'},
-  'ridho':     {nama:'Ridho Ariasz M, S.Pd.',           role:'guru',  inisial:'RA'},
-  'dessy':     {nama:'Dessy Andriyani, S.Pd.',          role:'guru',  inisial:'DA'},
-  'udjie':     {nama:'Wirdianita, S.Pd.Ing',            role:'guru',  inisial:'WD'},
-  'agita':     {nama:'Agita Novi Oktaviastuti, S.Pd.',  role:'admin', inisial:'AN'},
-  'sayang':    {nama:'Brellian Caesar Firdausi, S.IP.', role:'guru',  inisial:'BC'},
-  'yuliani':   {nama:'Sri Yuliani',                     role:'tu',    inisial:'SY'},
-  'linea':     {nama:'Linea Fitrie',                    role:'tu',    inisial:'LF'},
-  'rizal':     {nama:'Isnarizal',                       role:'tu',    inisial:'IS'},
-  'riwan':     {nama:'Riwan Handoko',                   role:'tu',    inisial:'RH'}
 };
 var ROLE_LABEL={admin:'Admin',guru:'Guru',kepsek:'Kepala Sekolah',tu:'Tata Usaha',pengurus:'Pengurus Barang'};
 var ROLE_ACCESS={
@@ -794,7 +784,7 @@ function applyUser(u){
   el=document.getElementById('display-jabatan');if(el)el.textContent=u.inisial+' · '+ROLE_LABEL[u.role];
   el=document.getElementById('display-role');if(el)el.textContent=ROLE_LABEL[u.role];
   var sel=document.getElementById('f-guru');
-  setPeminjamDefault();
+  setPeminjamDefault();muatDaftarGuru();
 }
 
 function applyAccess(role){
@@ -1075,6 +1065,7 @@ function checkManual(val){
 }
 
 function startScan(){
+  if(typeof jsQR==='undefined'){alert('Pemindai QR gagal dimuat (periksa koneksi internet). Silakan ketik kode aset secara manual.');return;}
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){alert('Browser tidak mendukung kamera. Ketik kode manual.');return;}
   document.getElementById('btn-scan').classList.add('hidden');
   document.getElementById('qr-reader').classList.remove('hidden');
@@ -1281,6 +1272,7 @@ function unduhExcel(rows,kolom,namaSheet,namaFile){
     kolom.forEach(function(k){o[k.label]=r[k.key]==null?'':r[k.key];});
     return o;
   });
+  if(typeof XLSX==='undefined'){alert('Pustaka Excel gagal dimuat. Periksa koneksi lalu coba lagi.');return;}
   var ws=XLSX.utils.json_to_sheet(data);
   ws['!cols']=kolom.map(function(k){return {wch:k.lebar||16};});
   var wb=XLSX.utils.book_new();
@@ -1527,7 +1519,6 @@ function kirimOTP() {
   var btn   = document.getElementById('btn-kirim-otp');
   err.style.display='none';
   if(!uname){err.style.display='block';err.textContent='❌ Username wajib diisi';return;}
-  if(!USERS[uname]){err.style.display='block';err.textContent='❌ Username tidak ditemukan';return;}
   
   btn.textContent='Mengirim...';
   btn.disabled=true;
@@ -1577,8 +1568,6 @@ function verifikasiOTP() {
       err.textContent='❌ '+data.message;
       return;
     }
-    // Update password di USERS object
-    if(USERS[uname]) USERS[uname].password=newpass;
     document.getElementById('gp-step2').style.display='none';
     document.getElementById('gp-step3').style.display='block';
   })
