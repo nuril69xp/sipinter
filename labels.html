@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cetak Label QR — Si-PINTER SEKOLAH</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous"></script>
+<script>window.QRCode||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous"><\/script>');</script>
 <style>
   :root{--g1:#0F6E56;--g2:#1D9E75;--gray1:#2A2A28;--gray3:#8C8A80;--gray5:#F1EFE8;--rad:16px}
   *{box-sizing:border-box}
@@ -140,7 +141,7 @@ function renderSheet(){
     var nm=document.createElement('div'); nm.className='nama'; nm.textContent=(a.merek||'')+' '+(a.model||''); lab.appendChild(nm);
     var sk=document.createElement('div'); sk.className='sekolah'; sk.textContent='Si-PINTER · '+SEKOLAH; lab.appendChild(sk);
     sheet.appendChild(lab);
-    new QRCode(qrBox,{text:a.kode,width:130,height:130,correctLevel:QRCode.CorrectLevel.M});
+    if(typeof QRCode!=='undefined'){new QRCode(qrBox,{text:a.kode,width:130,height:130,correctLevel:QRCode.CorrectLevel.M});}else{qrBox.textContent='QR gagal dimuat';}
   });
 }
 muat();
