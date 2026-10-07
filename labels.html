@@ -85,11 +85,14 @@ function kembaliApp(){
   history.back();
   setTimeout(function(){ location.href='index.html?goto=aset'; },500);
 }
-function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function jsArg(v){return esc(JSON.stringify(String(v==null?'':v)));}
+function tokenSesi(){try{var s=JSON.parse(localStorage.getItem('sipinter_session')||'null');return (s&&s.user&&s.user.token)||'';}catch(e){return '';}}
 function jenis(kode){var p=String(kode).toUpperCase().split('-')[0];return p==='CB'?'cb':p==='PJ'?'pj':'lain';}
 
 function muat(){
-  fetch(API_URL+'?action=aset').then(function(r){return r.json();}).then(function(d){
+  fetch(API_URL+'?action=aset&token='+encodeURIComponent(tokenSesi())).then(function(r){return r.json();}).then(function(d){
+    if(d.status==='SESI_HABIS'){document.getElementById('status').innerHTML='🔒 Sesi berakhir. Buka aplikasi, login ulang, lalu buka halaman ini lagi.';return;}
     if(d.status!=='OK'||!d.data||!d.data.length){
       document.getElementById('status').innerHTML='⚠️ Gagal memuat daftar aset. <a href="#" onclick="muat();return false">Coba lagi</a>';
       return;
@@ -115,7 +118,7 @@ function terfilter(){return semuaAset.filter(function(a){return filterAktif==='s
 function renderList(){
   var html='';
   terfilter().forEach(function(a){
-    html+='<label class="row"><input type="checkbox" '+(dipilih[a.kode]?'checked':'')+' onchange="dipilih[\''+a.kode+'\']=this.checked;renderSheet()">'
+    html+='<label class="row"><input type="checkbox" '+(dipilih[a.kode]?'checked':'')+' onchange="dipilih['+jsArg(a.kode)+']=this.checked;renderSheet()">'
       +'<span class="rk">'+esc(a.kode)+'</span><span>'+esc(a.merek)+' '+esc(a.model)+'</span><span class="rs">'+esc(a.status)+'</span></label>';
   });
   document.getElementById('list').innerHTML=html||'<div style="padding:16px;text-align:center;color:var(--gray3);font-size:13px">Tidak ada aset pada kategori ini</div>';
